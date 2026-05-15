@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://ellviiautomations.com/sitemap.xml
+Sitemap: https://ellviisautomations.com/sitemap.xml
