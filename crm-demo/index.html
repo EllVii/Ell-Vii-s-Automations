@@ -39,6 +39,7 @@
         <button onclick="navTo('pipeline',this)">Pipeline</button>
         <button onclick="navTo('phones',this)">Phone Workflow</button>
         <button onclick="navTo('calendar',this)">Calendar</button>
+        <button onclick="navTo('chatAdmin',this)">Chat Admin</button>
         <button onclick="navTo('settings',this)">Settings</button>
       </nav>
       <div class="small" style="border-top:1px solid rgba(255,255,255,.1);padding-top:16px;color:#94a3b8">Demo uses localStorage. Production needs backend, auth, Twilio webhooks, and A2P setup.</div>
@@ -153,6 +154,46 @@
         </div>
       </section>
 
+
+      <section id="chatAdmin" class="section">
+        <div class="grid two">
+          <div class="card">
+            <h3 style="margin-top:0">Chat Response Library</h3>
+            <p class="muted">Edit suggested website chatbot responses. This demo uses browser storage. Production should use a database.</p>
+
+            <div class="form-group">
+              <label>Response Key</label>
+              <select id="crmResponseKey" onchange="crmLoadChatResponse()"></select>
+            </div>
+
+            <div class="form-group">
+              <label>Label</label>
+              <input id="crmResponseLabel">
+            </div>
+
+            <div class="form-group">
+              <label>Response Text</label>
+              <textarea id="crmResponseText"></textarea>
+            </div>
+
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <button class="btn primary inline" onclick="crmSaveChatResponse()">Save Response</button>
+              <button class="btn secondary inline" onclick="crmResetChatResponses()">Reset Defaults</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 style="margin-top:0">Website Chat Logs</h3>
+            <p class="muted">Local website chatbot logs saved in this browser.</p>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+              <button class="btn secondary inline" onclick="crmRenderChatLogs()">Refresh</button>
+              <button class="btn danger inline" onclick="crmClearChatLogs()">Clear Logs</button>
+            </div>
+            <div id="crmChatLogs"></div>
+          </div>
+        </div>
+      </section>
+
       <section id="settings" class="section">
         <div class="grid two">
           <div class="card">
@@ -195,7 +236,7 @@ let db=JSON.parse(localStorage.getItem(KEY))||{mode:"home",brand:"Ell Vii's CRM"
 let calDate=new Date();
 function mode(){return MODES[db.mode]||MODES.home}
 function save(){localStorage.setItem(KEY,JSON.stringify(db));render()}
-function navTo(id,btn){document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");if(btn){document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));btn.classList.add("active")}document.getElementById("pageTitle").textContent={dashboard:"Dashboard",records:"Records",pipeline:"Pipeline",phones:"Phone Workflow",calendar:"Calendar",settings:"Settings"}[id]||id;if(innerWidth<900)toggleSide(false)}
+function navTo(id,btn){document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");if(btn){document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));btn.classList.add("active")}document.getElementById("pageTitle").textContent={dashboard:"Dashboard",records:"Records",pipeline:"Pipeline",phones:"Phone Workflow",calendar:"Calendar",chatAdmin:"Chat Admin",settings:"Settings"}[id]||id;if(innerWidth<900)toggleSide(false)}
 function toggleSide(force){let s=document.getElementById("side"),o=document.getElementById("overlay");let st=force!==undefined?force:!s.classList.contains("open");s.classList.toggle("open",st);o.classList.toggle("open",st)}
 function today(){return new Date().toISOString().split("T")[0]} function money(n){return "$"+Number(n||0).toLocaleString()} function esc(s){let p=document.createElement("p");p.textContent=s==null?"":String(s);return p.innerHTML}
 function applyMode(){let m=mode();document.getElementById("modePill").textContent=m.name+" Mode";document.getElementById("labelCompany").textContent=m.labels[0];document.getElementById("labelContact").textContent=m.labels[1];document.getElementById("labelDate").textContent=m.labels[2];document.getElementById("labelValue").textContent=m.labels[3];document.getElementById("labelSource").textContent=m.labels[4];document.getElementById("labelOwner").textContent=m.labels[5];document.getElementById("labelSize").textContent=m.labels[6];document.getElementById("labelType").textContent=m.labels[7];fillSelect("status",m.statuses);fillSelect("source",m.sources);fillSelect("size",m.sizes);fillSelect("type",m.types);document.getElementById("extraFields").innerHTML=m.extra.map(x=>`<div class="form-group"><label>${x[1]}</label><input id="${x[0]}"></div>`).join("");document.getElementById("recordTitle").textContent=m.labels[0]+" Profile"}
@@ -226,7 +267,62 @@ function exportData(){let b=new Blob([JSON.stringify(db,null,2)],{type:"applicat
 function clearData(){if(confirm("Wipe demo data?")){db.records=[];db.logs=[];save()}}
 function toggleAI(){let p=document.getElementById("aiPanel");p.style.display=p.style.display=="flex"?"none":"flex"}
 function runSearch(){let q=val("aiInput").toLowerCase().trim(),box=document.getElementById("aiResults");if(!q){box.innerHTML='<p class="muted">Search tags, notes, owners, sources, account size, or phone path.</p>';return}let res=db.records.filter(r=>JSON.stringify(r).toLowerCase().includes(q));box.innerHTML=res.map(r=>{let notes=esc(r.notes||"No notes.");[q,"#important","payment","missedcall","urgent"].forEach(k=>{if(k)notes=notes.replace(new RegExp(`(${k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")})`,"gi"),'<span class="mark">$1</span>')});return`<div class="ai-card" onclick="editRecord('${r.id}');toggleAI()"><b>${esc(r.company)}</b><br><small class="muted">${esc(r.source)} • ${esc(r.owner)} • ${esc(r.phonePath)}</small><p class="small">${notes}</p></div>`}).join("")||'<div class="card">No results.</div>'}
+
+function crmDefaultResponses(){
+  return {
+    website:{label:'I need a website',text:'A website starts with the $375 Prototype Launch. That includes website direction, lead-flow planning, call/book/pay structure, and basic SEO foundation. After launch, you can manage it yourself or choose an upkeep plan.'},
+    websiteOnly:{label:'Website only, no monthly?',text:'Yes. You can choose a website-only build with no monthly plan. After launch, the site is handed off and you are responsible for hosting, domain renewal, updates, edits, security, backups, forms, and broken third-party tools unless you choose a support plan.'},
+    upkeep:{label:'What does upkeep include?',text:'Website upkeep is handled through Stay Live at $197/mo. It can include hosting support, SSL checks, basic updates, monthly site checks, form checks, small text/image edits, and basic technical support. Bigger redesigns, new pages, CRM, ads, phone workflows, or major SEO work are separate.'},
+    crm:{label:'I need a CRM',text:'The CRM is separate from the public website. It includes industry modes for Home Services, Beauty/Wellness, Restaurant/Hospitality, and Housing/Rental. It helps track notes, follow-ups, pipeline, ELA accountability, and missed opportunities.'},
+    phone:{label:'I miss calls/leads',text:'For missed calls and lead protection, we use Twilio-powered phone workflows. Options include full number porting, low-risk call forwarding, or hosted SMS when eligible. The goal is simple: calls and texts should create records instead of disappearing.'},
+    pricing:{label:'Show pricing',text:'Website Prototype Launch starts at $375 one-time. Stay Live starts at $197/mo. Growth Partner starts at $397/mo. CRM add-ons start at +$97/mo. Phone workflow add-ons start at +$79/mo with included usage allowances.'},
+    values:{label:'Are you faith-based?',text:'Yes. Ell Vii’s Automations is Christian-led, faith-rooted, service-driven, and open to serving businesses of all backgrounds. We do not label people or businesses as good or bad. We serve with humility, grace, honesty, and excellence.'}
+  };
+}
+function crmGetChatResponses(){return JSON.parse(localStorage.getItem('ev_chat_responses_v1'))||crmDefaultResponses()}
+function crmSaveChatResponses(data){localStorage.setItem('ev_chat_responses_v1',JSON.stringify(data))}
+function crmPopulateChatAdmin(){
+  const select=document.getElementById('crmResponseKey');
+  if(!select) return;
+  const data=crmGetChatResponses();
+  select.innerHTML=Object.keys(data).map(k=>`<option value="${k}">${k}</option>`).join('');
+  crmLoadChatResponse();
+  crmRenderChatLogs();
+}
+function crmLoadChatResponse(){
+  const data=crmGetChatResponses();
+  const key=document.getElementById('crmResponseKey')?.value;
+  if(!key) return;
+  document.getElementById('crmResponseLabel').value=data[key]?.label||'';
+  document.getElementById('crmResponseText').value=data[key]?.text||'';
+}
+function crmSaveChatResponse(){
+  const data=crmGetChatResponses();
+  const key=document.getElementById('crmResponseKey').value;
+  data[key]={label:document.getElementById('crmResponseLabel').value,text:document.getElementById('crmResponseText').value};
+  crmSaveChatResponses(data);
+  alert('Chat response saved.');
+}
+function crmResetChatResponses(){
+  if(!confirm('Reset chatbot responses to defaults?')) return;
+  crmSaveChatResponses(crmDefaultResponses());
+  crmPopulateChatAdmin();
+}
+function crmRenderChatLogs(){
+  const box=document.getElementById('crmChatLogs');
+  if(!box) return;
+  const logs=JSON.parse(localStorage.getItem('ev_chat_logs_v1'))||[];
+  if(!logs.length){box.innerHTML='<p class="small">No website chatbot logs saved in this browser yet.</p>';return;}
+  box.innerHTML=logs.slice().reverse().map(log=>`<div class="ai-card"><b>${log.role==='user'?'Visitor':'Assistant'}</b><br><span>${esc(log.text)}</span><br><small class="muted">${new Date(log.time).toLocaleString()}</small></div>`).join('');
+}
+function crmClearChatLogs(){
+  if(!confirm('Clear local website chatbot logs?')) return;
+  localStorage.removeItem('ev_chat_logs_v1');
+  crmRenderChatLogs();
+}
+
 render();
+crmPopulateChatAdmin();
 </script>
 </body>
 </html>

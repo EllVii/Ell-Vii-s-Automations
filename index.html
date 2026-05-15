@@ -258,6 +258,62 @@
     </div>
   </footer>
 
+
+  
+  <script>
+    window.EV_CHAT_RESPONSE_KEY = 'ev_chat_responses_v1';
+    window.EV_CHAT_LOG_KEY = 'ev_chat_logs_v1';
+
+    window.EV_DEFAULT_CHAT_RESPONSES = {
+      website: {
+        label: 'I need a website',
+        text: 'A website starts with the $375 Prototype Launch. That includes website direction, lead-flow planning, call/book/pay structure, and basic SEO foundation. After launch, you can manage it yourself or choose an upkeep plan.'
+      },
+      websiteOnly: {
+        label: 'Website only, no monthly?',
+        text: 'Yes. You can choose a website-only build with no monthly plan. After launch, the site is handed off and you are responsible for hosting, domain renewal, updates, edits, security, backups, forms, and broken third-party tools unless you choose a support plan.'
+      },
+      upkeep: {
+        label: 'What does upkeep include?',
+        text: 'Website upkeep is handled through Stay Live at $197/mo. It can include hosting support, SSL checks, basic updates, monthly site checks, form checks, small text/image edits, and basic technical support. Bigger redesigns, new pages, CRM, ads, phone workflows, or major SEO work are separate.'
+      },
+      crm: {
+        label: 'I need a CRM',
+        text: 'The CRM is separate from the public website. It includes industry modes for Home Services, Beauty/Wellness, Restaurant/Hospitality, and Housing/Rental. It helps track notes, follow-ups, pipeline, ELA accountability, and missed opportunities.'
+      },
+      phone: {
+        label: 'I miss calls/leads',
+        text: 'For missed calls and lead protection, we use Twilio-powered phone workflows. Options include full number porting, low-risk call forwarding, or hosted SMS when eligible. The goal is simple: calls and texts should create records instead of disappearing.'
+      },
+      pricing: {
+        label: 'Show pricing',
+        text: 'Website Prototype Launch starts at $375 one-time. Stay Live starts at $197/mo. Growth Partner starts at $397/mo. CRM add-ons start at +$97/mo. Phone workflow add-ons start at +$79/mo with included usage allowances.'
+      },
+      values: {
+        label: 'Are you faith-based?',
+        text: 'Yes. Ell Vii’s Automations is Christian-led, faith-rooted, service-driven, and open to serving businesses of all backgrounds. We do not label people or businesses as good or bad. We serve with humility, grace, honesty, and excellence.'
+      }
+    };
+
+    function evGetResponses(){
+      return JSON.parse(localStorage.getItem(window.EV_CHAT_RESPONSE_KEY)) || window.EV_DEFAULT_CHAT_RESPONSES;
+    }
+
+    function evLogMessage(text, role){
+      const logs = JSON.parse(localStorage.getItem(window.EV_CHAT_LOG_KEY)) || [];
+      logs.push({ text, role, time: new Date().toISOString() });
+      localStorage.setItem(window.EV_CHAT_LOG_KEY, JSON.stringify(logs.slice(-200)));
+    }
+
+    function evRespondFromLibrary(topic){
+      const data = evGetResponses();
+      const response = data[topic] || window.EV_DEFAULT_CHAT_RESPONSES[topic];
+      if(response){
+        evBotReply(response.text);
+      }
+    }
+  </script>
+
   <!-- Ell Vii's Website Chatbot -->
   <div class="ev-chat-toggle" onclick="toggleEvChat()">Chat</div>
 
@@ -272,10 +328,13 @@
 
     <div class="ev-chat-body" id="evChatBody">
       <div class="ev-msg bot">
-        Hi — I can help you figure out whether you need a website, CRM, hosting, or a Twilio-powered phone workflow.
+        Hi — I can help you figure out whether you need a website, CRM, hosting, upkeep, or a Twilio-powered phone workflow.
       </div>
+
       <div class="ev-suggestions" id="evSuggestions">
         <button onclick="evQuickReply('website')">I need a website</button>
+        <button onclick="evQuickReply('websiteOnly')">Website only, no monthly?</button>
+        <button onclick="evQuickReply('upkeep')">What does upkeep include?</button>
         <button onclick="evQuickReply('crm')">I need a CRM</button>
         <button onclick="evQuickReply('phone')">I miss calls/leads</button>
         <button onclick="evQuickReply('pricing')">Show pricing</button>
@@ -284,7 +343,7 @@
     </div>
 
     <div class="ev-chat-input">
-      <input id="evChatInput" placeholder="Ask about websites, CRM, hosting, or phones..." onkeydown="if(event.key==='Enter') evSendChat();" />
+      <input id="evChatInput" placeholder="Ask about websites, upkeep, CRM, hosting, or phones..." onkeydown="if(event.key==='Enter') evSendChat();" />
       <button onclick="evSendChat()">Send</button>
     </div>
   </div>
@@ -302,6 +361,7 @@
       div.textContent = text;
       body.appendChild(div);
       body.scrollTop = body.scrollHeight;
+      if(typeof evLogMessage === 'function') evLogMessage(text, who);
     }
 
     function evBotReply(text){
@@ -311,31 +371,48 @@
     function evQuickReply(topic){
       const labels = {
         website: 'I need a website',
+        websiteOnly: 'Can I just get a website with no monthly plan?',
+        upkeep: 'What does website upkeep include?',
         crm: 'I need a CRM',
         phone: 'I miss calls/leads',
         pricing: 'Show pricing',
         values: 'Are you faith-based?'
       };
+
       evAddMessage(labels[topic] || topic, 'user');
 
       if(topic === 'website'){
-        evBotReply('A website-only build starts with the $375 Prototype Launch. If you want hosting and upkeep after launch, Stay Live starts at $197/mo. I can help you choose the cleanest path.');
+        evRespondFromLibrary('website');
         document.getElementById('services')?.scrollIntoView({behavior:'smooth'});
       }
-      if(topic === 'crm'){
-        evBotReply('The CRM is separate from the public website. It includes industry modes for Home Services, Beauty/Wellness, Restaurant/Hospitality, and Housing/Rental.');
-        document.getElementById('crm')?.scrollIntoView({behavior:'smooth'});
-      }
-      if(topic === 'phone'){
-        evBotReply('For missed calls and lead protection, we use Twilio-powered phone workflows: ported number, call forwarding, or hosted SMS depending on what fits the business.');
-        document.getElementById('phones')?.scrollIntoView({behavior:'smooth'});
-      }
-      if(topic === 'pricing'){
-        evBotReply('Website plans start with a $375 Prototype Launch. Monthly plans start at $197/mo, CRM add-ons start at +$97/mo, and phone workflow add-ons start at +$79/mo.');
+
+      if(topic === 'websiteOnly'){
+        evRespondFromLibrary('websiteOnly');
         document.getElementById('pricing')?.scrollIntoView({behavior:'smooth'});
       }
+
+      if(topic === 'upkeep'){
+        evRespondFromLibrary('upkeep');
+        document.getElementById('pricing')?.scrollIntoView({behavior:'smooth'});
+      }
+
+      if(topic === 'crm'){
+        evRespondFromLibrary('crm');
+        document.getElementById('crm')?.scrollIntoView({behavior:'smooth'});
+      }
+
+      if(topic === 'phone'){
+        evRespondFromLibrary('phone');
+        document.getElementById('phones')?.scrollIntoView({behavior:'smooth'});
+      }
+
+      if(topic === 'pricing'){
+        evRespondFromLibrary('pricing');
+        document.getElementById('pricing')?.scrollIntoView({behavior:'smooth'});
+      }
+
       if(topic === 'values'){
-        evBotReply('Yes. Ell Vii’s Automations is Christian-led, faith-rooted, service-driven, and open to serving businesses of all backgrounds.');
+        evRespondFromLibrary('values');
         document.getElementById('values')?.scrollIntoView({behavior:'smooth'});
       }
     }
@@ -344,33 +421,66 @@
       const input = document.getElementById('evChatInput');
       const text = input.value.trim();
       if(!text) return;
+
       input.value = '';
       evAddMessage(text, 'user');
 
       const q = text.toLowerCase();
 
-      if(q.includes('price') || q.includes('cost') || q.includes('pricing')){
+      if(
+        q.includes('no monthly') ||
+        q.includes('without monthly') ||
+        q.includes('just a website') ||
+        q.includes('only website') ||
+        q.includes('website only') ||
+        q.includes('one time') ||
+        q.includes('one-time') ||
+        q.includes('handoff') ||
+        q.includes('hand off')
+      ){
+        evBotReply('Yes. You can choose a website-only build with no monthly plan. After launch, the site is handed off and you are responsible for hosting, domain renewal, updates, edits, security, backups, forms, and broken third-party tools unless you choose a support plan. If you need help later, support can be billed hourly or moved into a monthly plan.');
+        return;
+      }
+
+      if(
+        q.includes('upkeep') ||
+        q.includes('maintenance') ||
+        q.includes('support') ||
+        q.includes('hosting') ||
+        q.includes('ssl') ||
+        q.includes('updates') ||
+        q.includes('edit')
+      ){
+        evBotReply('Stay Live is the upkeep plan at $197/mo. It can include hosting support, SSL checks, basic updates, monthly site checks, form checks, small text/image edits, and basic technical support. Larger work is quoted separately.');
+        return;
+      }
+
+      if(q.includes('price') || q.includes('cost') || q.includes('pricing') || q.includes('how much')){
         evQuickReply('pricing');
         return;
       }
-      if(q.includes('crm') || q.includes('lead') || q.includes('follow')){
+
+      if(q.includes('crm') || q.includes('lead') || q.includes('follow') || q.includes('pipeline')){
         evQuickReply('crm');
         return;
       }
-      if(q.includes('phone') || q.includes('call') || q.includes('text') || q.includes('twilio')){
+
+      if(q.includes('phone') || q.includes('call') || q.includes('text') || q.includes('twilio') || q.includes('missed')){
         evQuickReply('phone');
         return;
       }
-      if(q.includes('website') || q.includes('hosting') || q.includes('seo')){
+
+      if(q.includes('website') || q.includes('site') || q.includes('seo')){
         evQuickReply('website');
         return;
       }
-      if(q.includes('faith') || q.includes('christian') || q.includes('values')){
+
+      if(q.includes('faith') || q.includes('christian') || q.includes('values') || q.includes('serve all')){
         evQuickReply('values');
         return;
       }
 
-      evBotReply('Good question. The safest starting point is a website prototype, then we add hosting, CRM, phone workflows, or AI only if the business actually needs them.');
+      evBotReply('Good question. The safest starting point is usually a website prototype. Then we add hosting, CRM, phone workflows, SEO, or AI only if the business actually needs them.');
     }
   </script>
 
