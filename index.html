@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Ell Vii's Automations | Websites, Hosting, CRM & Twilio Phone Workflows</title>
+  <meta name="description" content="Ell Vii's Automations builds websites, managed hosting, SEO foundations, AI assistants, CRM systems, and Twilio-powered phone workflows for local businesses." />
+  <meta name="keywords" content="Phoenix website design, managed hosting, local SEO, CRM for small business, Twilio CRM, missed call capture, AI chatbot, Ell Vii's Automations" />
+  <meta property="og:title" content="Ell Vii's Automations | Agency-Level Structure Without Agency-Level Bloat" />
+  <meta property="og:description" content="Websites that capture leads. CRM that protects them. Phone workflows that stop missed opportunities from disappearing." />
+  <meta property="og:type" content="website" />
+  <style>
+    :root{
+      --bg:#f8fafc;--card:#fff;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;
+      --brand:#2563eb;--brand2:#4f46e5;--dark:#0f172a;--green:#16a34a;--amber:#f59e0b;
+      --radius:24px;--shadow:0 20px 50px rgba(15,23,42,.10)
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+    a{text-decoration:none;color:inherit}.wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+    nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+    .nav{height:76px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+    .logo{display:flex;align-items:center;gap:12px}.mark{width:44px;height:44px;border-radius:16px;background:var(--dark);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:950;font-style:italic}
+    .logo b{display:block;letter-spacing:-.04em;font-size:19px}.logo span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.26em;font-weight:950;color:var(--brand)}
+    .links{display:flex;gap:18px;align-items:center;font-size:12px;text-transform:uppercase;letter-spacing:.12em;font-weight:950;color:#475569}
+    .btn{display:inline-flex;align-items:center;justify-content:center;border-radius:16px;padding:13px 18px;font-weight:950;font-size:13px;border:1px solid var(--line);background:#fff;color:var(--ink)}
+    .btn.primary{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 14px 30px rgba(37,99,235,.25)}
+    .btn.dark{background:var(--dark);border-color:var(--dark);color:#fff}.btn.green{background:var(--green);border-color:var(--green);color:#fff}
+    .hero{padding:92px 0 70px;position:relative;overflow:hidden}.hero:before{content:"";position:absolute;inset:-120px auto auto 50%;width:640px;height:640px;background:radial-gradient(circle,rgba(37,99,235,.16),transparent 65%);transform:translateX(-50%);pointer-events:none}
+    .hero-grid{position:relative;display:grid;grid-template-columns:1.1fr .9fr;gap:44px;align-items:center}
+    .kicker{display:inline-flex;gap:8px;align-items:center;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;border-radius:999px;padding:8px 12px;font-size:11px;font-weight:950;text-transform:uppercase;letter-spacing:.16em}
+    h1{font-size:clamp(46px,7vw,82px);line-height:.9;letter-spacing:-.075em;margin:24px 0 20px}.blue{color:var(--brand)}.indigo{color:var(--brand2)}
+    .lead{font-size:20px;line-height:1.6;color:var(--muted);max-width:650px}.cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:34px}
+    .proof{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:40px}.proof div{background:#fff;border:1px solid var(--line);border-radius:20px;padding:16px;box-shadow:0 10px 28px rgba(15,23,42,.06)}.proof b{font-size:24px;display:block}.proof span{font-size:11px;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.1em}
+    .screen{background:#fff;border:1px solid var(--line);border-radius:34px;padding:18px;box-shadow:var(--shadow)}.screen-top{display:flex;gap:6px;background:#f8fafc;border:1px solid var(--line);border-radius:22px;padding:12px;margin-bottom:14px}.dot{width:10px;height:10px;border-radius:50%;background:#cbd5e1}
+    .mock-card{border:1px solid var(--line);border-radius:22px;padding:18px;margin:12px 0;background:#fff}.mock-row{display:flex;align-items:center;justify-content:space-between;gap:18px}
+    .badge{display:inline-flex;border-radius:999px;padding:5px 9px;font-size:10px;text-transform:uppercase;letter-spacing:.11em;font-weight:950;border:1px solid transparent}.badge.green{background:#ecfdf5;color:#047857;border-color:#a7f3d0}.badge.blue{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}.badge.amber{background:#fffbeb;color:#b45309;border-color:#fde68a}.badge.red{background:#fef2f2;color:#b91c1c;border-color:#fecaca}
+    section{padding:72px 0}.section-head{max-width:760px;margin-bottom:34px}.section-head.center{text-align:center;margin-left:auto;margin-right:auto}h2{font-size:clamp(34px,5vw,58px);letter-spacing:-.06em;line-height:.95;margin:0 0 16px}.sub{font-size:17px;color:var(--muted);line-height:1.6}
+    .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+    .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:25px;box-shadow:0 12px 32px rgba(15,23,42,.06)}.card h3{font-size:22px;letter-spacing:-.035em;margin:0 0 10px}.card p,.card li{color:var(--muted);line-height:1.55}.card ul{padding-left:18px;margin-bottom:0}
+    .darkband{background:var(--dark);color:#fff}.darkband .sub,.darkband .card p,.darkband .card li{color:#cbd5e1}.darkband .card{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12)}
+    .price{font-size:30px;font-weight:950;letter-spacing:-.04em;margin:12px 0}.small{font-size:12px;color:var(--muted);line-height:1.45}
+    .phone-options{counter-reset:opt}.phone-card{position:relative;padding-left:72px}.phone-card:before{counter-increment:opt;content:counter(opt);position:absolute;left:24px;top:24px;width:34px;height:34px;border-radius:12px;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:950}
+    .note{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:18px;padding:16px;font-weight:700;line-height:1.45}
+    .footer{background:#fff;border-top:1px solid var(--line);padding:42px 0;color:var(--muted);font-size:13px}
+    input,textarea,select{width:100%;border:1px solid var(--line);border-radius:16px;padding:13px 14px;font:inherit;background:#fff}textarea{min-height:130px}
+    form{display:grid;gap:12px}.table{overflow-x:auto}.pricing-table{width:100%;border-collapse:collapse;min-width:780px;background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden}.pricing-table th,.pricing-table td{padding:14px;border-bottom:1px solid var(--line);text-align:left}.pricing-table th{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);background:#f8fafc}
+    @media(max-width:900px){.hero-grid,.grid2,.grid3,.grid4{grid-template-columns:1fr}.links{display:none}.proof{grid-template-columns:1fr}.hero{padding-top:54px}.screen{margin-top:10px}.phone-card{padding-left:25px}.phone-card:before{position:static;margin-bottom:12px}}
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="wrap nav">
+      <a class="logo" href="#top"><div class="mark">LV</div><div><b>Ell Vii's</b><span>Automations</span></div></a>
+      <div class="links">
+        <a href="#services">Services</a><a href="#crm">CRM</a><a href="#phones">Phones</a><a href="#pricing">Pricing</a><a href="#contact" class="btn primary">Start</a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="top">
+    <header class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <div class="kicker">Phoenix, AZ • Websites • Hosting • CRM</div>
+          <h1>Websites That <span class="blue">Work.</span><br>Systems That <span class="indigo">Follow Up.</span></h1>
+          <p class="lead">Ell Vii’s Automations builds customer-first websites, managed hosting, SEO foundations, AI assistants, CRM systems, and Twilio-powered phone workflows for local businesses that cannot afford missed follow-up.</p>
+          <div class="cta">
+            <a href="#contact" class="btn primary">Request a Prototype</a>
+            <a href="../crm-demo/index.html" class="btn dark">Open Separate CRM Demo</a>
+          </div>
+          <div class="proof">
+            <div><b>4</b><span>Focused CRM modes</span></div>
+            <div><b>Twilio</b><span>Phone workflow path</span></div>
+            <div><b>Separate</b><span>Website + CRM demo</span></div>
+          </div>
+        </div>
+        <div class="screen" aria-label="Website and CRM preview">
+          <div class="screen-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+          <div class="mock-card">
+            <div class="mock-row">
+              <div><b>Website Lead Captured</b><br><span class="small">Source: Home Services page</span></div>
+              <span class="badge blue">New</span>
+            </div>
+          </div>
+          <div class="mock-card">
+            <div class="mock-row">
+              <div><b>Missed Call Protected</b><br><span class="small">CRM created urgent follow-up</span></div>
+              <span class="badge amber">ELA Due</span>
+            </div>
+          </div>
+          <div class="mock-card">
+            <div class="mock-row">
+              <div><b>Pipeline Attribution</b><br><span class="small">Ads → $4,500 • Referral → $1,200</span></div>
+              <span class="badge green">Tracked</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section id="services">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Agency-level structure without agency-level bloat.</h2>
+          <p class="sub">The public website sells clearly. The CRM protects what happens after the call, form, message, booking, or missed opportunity.</p>
+        </div>
+        <div class="grid3">
+          <div class="card"><h3>Website Creation</h3><p>Clean, fast, mobile-first websites that explain what the business does, why it matters, and how to contact or book within seconds.</p></div>
+          <div class="card"><h3>Managed Hosting</h3><p>Hosting, SSL, basic updates, performance checks, and technical support for businesses that do not want to fight their own website.</p></div>
+          <div class="card"><h3>SEO Foundation</h3><p>Metadata, local keyword structure, headings, page copy, image labels, and search-friendly service pages built into the site from day one.</p></div>
+          <div class="card"><h3>AI Website Assistant</h3><p>FAQ and lead-routing assistants that answer common questions and push visitors toward the right next step.</p></div>
+          <div class="card"><h3>CRM Systems</h3><p>Separate CRM portal with lead notes, calendar reminders, pipeline attribution, ELA accountability, and industry modes.</p></div>
+          <div class="card"><h3>Paid Ads Support</h3><p>Optional Google or Meta setup and management. Ad spend is paid directly by the client to the ad platform.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="crm" class="darkband">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>One CRM engine. Four focused industries.</h2>
+          <p class="sub">The CRM demo stays separate from the public website so the sales site stays fast, clean, and not overloaded with demo logic.</p>
+        </div>
+        <div class="grid4">
+          <div class="card"><h3>Home Services</h3><p>Quotes, job photos, call follow-up, payment reminders, missed-call protection, and pipeline by source.</p></div>
+          <div class="card"><h3>Beauty / Wellness</h3><p>Bookings, deposits, client notes, reviews, before/after notes, VIP clients, and no-show follow-up.</p></div>
+          <div class="card"><h3>Restaurant / Hospitality</h3><p>Catering leads, private events, deposits, guest notes, complaint recovery, and review requests.</p></div>
+          <div class="card"><h3>Housing / Rental</h3><p>Inquiries, showings, lease tasks, maintenance, renewals, and compliance-safe documentation.</p></div>
+        </div>
+        <div class="cta"><a href="../crm-demo/index.html" class="btn primary">Launch CRM Demo</a></div>
+      </div>
+    </section>
+
+    <section id="phones">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>CRM phone workflows powered by Twilio.</h2>
+          <p class="sub">Your phone should not just ring. It should create a record, protect the lead, and tell the CRM what needs to happen next.</p>
+        </div>
+        <div class="grid3 phone-options">
+          <div class="card phone-card"><h3>Full CRM Phone Control</h3><p>Port the business number into Twilio so calls, texts, missed calls, voicemail, and source attribution can be handled directly by the CRM workflow.</p></div>
+          <div class="card phone-card"><h3>Low-Risk Forwarding</h3><p>Keep the existing carrier and forward calls into a CRM-connected number. Best for clients who want to test before moving the number.</p></div>
+          <div class="card phone-card"><h3>Keep Voice, Add CRM Texting</h3><p>Use Hosted SMS when eligible so the existing voice provider can stay in place while CRM texting is enabled through Twilio.</p></div>
+        </div>
+        <div class="note" style="margin-top:22px;">Client-facing promise: keep the same public number when possible, add smarter follow-up, and choose the least disruptive phone path for the business. Usage allowances and compliance registration apply.</div>
+      </div>
+    </section>
+
+    <section id="phone-plans" class="darkband">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Structured phone add-ons.</h2>
+          <p class="sub">Predictable plans with included usage allowances. Not fake unlimited. Not surprise chaos.</p>
+        </div>
+        <div class="grid3">
+          <div class="card"><h3>CRM Phone Lite</h3><div class="price">$79/mo</div><p>1 number, missed-call capture, basic call logging, SMS follow-up tools, up to 500 voice minutes and 500 SMS segments.</p></div>
+          <div class="card"><h3>CRM Phone Growth</h3><div class="price">$149/mo</div><p>1–2 numbers, click-to-call, source tracking, ELA reset, up to 2,000 voice minutes and 2,000 SMS segments.</p></div>
+          <div class="card"><h3>CRM Phone Pro</h3><div class="price">$297/mo</div><p>Multiple users, routing, voicemail logging, recording allowance, stronger reporting, up to 5,000 voice minutes and 5,000 SMS segments.</p></div>
+        </div>
+        <p class="sub">High-volume phone workflows, heavy texting, call recording, transcription, or multiple locations are quoted separately.</p>
+      </div>
+    </section>
+
+    <section id="pricing">
+      <div class="wrap">
+        <div class="section-head center">
+          <h2>Accessible premium pricing.</h2>
+          <p class="sub">Built for local businesses that need structure, not bloated agency retainers.</p>
+        </div>
+        <div class="grid3">
+          <div class="card"><h3>Prototype Launch</h3><div class="price">$375 one-time</div><p>Website prototype, direction, lead-flow planning, call/book/pay structure, and basic SEO foundation.</p></div>
+          <div class="card"><h3>Stay Live</h3><div class="price">$197/mo</div><p>Hosting, SSL, technical support, basic updates, and monthly checks.</p></div>
+          <div class="card"><h3>Growth Partner</h3><div class="price">$397/mo</div><p>Website support, local SEO refinement, conversion updates, and monthly service tracking.</p></div>
+          <div class="card"><h3>Hybrid Scale</h3><div class="price">$697/mo</div><p>SEO marketing, current website edits, review workflows, and stronger growth support.</p></div>
+          <div class="card"><h3>Market Dominator</h3><div class="price">$1,200+/mo</div><p>Full growth support, advanced workflows, priority support, and custom strategy.</p></div>
+          <div class="card"><h3>CRM Add-Ons</h3><div class="price">+$97/mo+</div><p>CRM Lite, CRM Growth, and CRM Pro available depending on contacts, notes, payment links, pipeline tracking, and multi-user workflow.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="values">
+      <div class="wrap">
+        <div class="card">
+          <div class="section-head center" style="margin-bottom:0">
+            <div class="kicker">Faith-rooted • Service-driven • Open to all</div>
+            <h2 style="margin-top:22px;">Built on faith, humility, grace, and service.</h2>
+            <p class="sub">Ell Vii’s Automations is a Christian-led company, but we proudly serve businesses of all backgrounds, beliefs, and walks of life. We do not label people or businesses as good or bad. Our focus is simple: treat every client with respect, give every project real effort, and help businesses become easier to find, easier to trust, and easier to grow.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="darkband">
+      <div class="wrap grid2">
+        <div>
+          <h2>Start with the website. Add the CRM when the business needs more control.</h2>
+          <p class="sub">Tell me what kind of business you’re working with and I’ll map the right website, hosting, SEO, phone, and CRM path.</p>
+        </div>
+        <div class="card">
+          <form name="prototype-request" method="POST" data-netlify="true">
+            <input type="hidden" name="form-name" value="prototype-request">
+            <input name="name" placeholder="Your name" required>
+            <input name="business" placeholder="Business name" required>
+            <input name="email" type="email" placeholder="Email" required>
+            <select name="interest">
+              <option>Website + Hosting</option>
+              <option>Website + CRM</option>
+              <option>CRM Demo</option>
+              <option>Twilio Phone Workflow</option>
+            </select>
+            <textarea name="message" placeholder="What does the business need help with?"></textarea>
+            <button class="btn primary" type="submit">Send Prototype Request</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <b>Ell Vii’s Automations</b> — Websites that capture leads. CRM that protects them. Phone workflows that prevent missed opportunities.
+      <br><br>
+      Twilio is used as a communications infrastructure provider for CRM phone workflows. Ell Vii’s Automations designs, configures, and supports the CRM experience; Twilio usage, A2P registration, carrier fees, taxes, and telecom requirements may vary by client.
+    </div>
+  </footer>
+</body>
+</html>
