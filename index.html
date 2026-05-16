@@ -486,6 +486,344 @@
 
 
 
+
+<!-- ELLVII_LEAD_GATE_OVERRIDE_START -->
+<script>
+(function(){
+  window.EV_LEAD_KEY = "ev_lead_capture_v1";
+
+  let evChatInitialized = false;
+  let evLeadStep = "firstName";
+  let evLeadInfo = {
+    firstName: "",
+    contact: "",
+    contactType: "",
+    conversationId: ""
+  };
+
+  function evBody(){
+    return document.getElementById("evChatBody");
+  }
+
+  function evInput(){
+    return document.getElementById("evChatInput");
+  }
+
+  function evSuggestions(){
+    return document.getElementById("evSuggestions");
+  }
+
+  function evShowSuggestions(show){
+    const s = evSuggestions();
+    if(s) s.style.display = show ? "flex" : "none";
+  }
+
+  function evSetPlaceholder(){
+    const input = evInput();
+    if(!input) return;
+
+    if(evLeadStep === "firstName"){
+      input.placeholder = "Enter your first name...";
+    } else if(evLeadStep === "contact"){
+      input.placeholder = "Enter email or phone number...";
+    } else {
+      input.placeholder = "Ask about websites, CRM, SEO, hosting, or phones...";
+    }
+  }
+
+  function evClearBody(){
+    const body = evBody();
+    if(body) body.innerHTML = "";
+  }
+
+  function evAddMessage(text, who, saveToServer){
+    const body = evBody();
+    if(!body) return;
+
+    const div = document.createElement("div");
+    div.className = "ev-msg " + who;
+    div.textContent = text;
+    body.appendChild(div);
+    body.scrollTop = body.scrollHeight;
+
+    if(typeof evLogMessage === "function"){
+      evLogMessage(text, who);
+    }
+
+    if(saveToServer && evLeadInfo.conversationId){
+      evStoreMessage(who, text);
+    }
+  }
+
+  function evBotReply(text){
+    setTimeout(function(){
+      evAddMessage(text, "bot", true);
+    }, 250);
+  }
+
+  function evCleanFirstName(value){
+    return String(value || "")
+      .replace(/[^a-zA-ZÀ-ÿ' -]/g, "")
+      .trim()
+      .split(" ")[0];
+  }
+
+  function evIsValidEmail(value){
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || "").trim());
+  }
+
+  function evIsValidPhone(value){
+    return /^[0-9+\-().\s]{7,}$/.test(String(value || "").trim());
+  }
+
+  function evDetectContactType(value){
+    if(evIsValidEmail(value)) return "email";
+    if(evIsValidPhone(value)) return "phone";
+    return "unknown";
+  }
+
+  function evGetSavedLead(){
+    try{
+      return JSON.parse(localStorage.getItem(window.EV_LEAD_KEY));
+    }catch(error){
+      localStorage.removeItem(window.EV_LEAD_KEY);
+      return null;
+    }
+  }
+
+  async function evStartConversationOnServer(){
+    const response = await fetch("/api/chat/start", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        firstName: evLeadInfo.firstName,
+        contact: evLeadInfo.contact,
+        contactType: evLeadInfo.contactType,
+        sourcePage: window.location.href
+      })
+    });
+
+    const data = await response.json();
+
+    if(!response.ok || !data.success){
+      throw new Error(data.error || "Could not start chat.");
+    }
+
+    evLeadInfo.conversationId = data.conversationId;
+    localStorage.setItem(window.EV_LEAD_KEY, JSON.stringify(evLeadInfo));
+    return data;
+  }
+
+  async function evStoreMessage(role, message){
+    try{
+      await fetch("/api/chat/message", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          conversationId: evLeadInfo.conversationId,
+          role: role,
+          message: message
+        })
+      });
+    }catch(error){
+      console.warn("Could not save chat message:", error);
+    }
+  }
+
+  function evStartChat(){
+    evClearBody();
+
+    const savedLead = evGetSavedLead();
+
+    if(savedLead && savedLead.firstName && savedLead.contact && savedLead.conversationId){
+      evLeadInfo = savedLead;
+      evLeadStep = "ready";
+      evSetPlaceholder();
+      evShowSuggestions(true);
+      evAddMessage("Welcome back, " + evLeadInfo.firstName + ". How can I help you today?", "bot", false);
+      return;
+    }
+
+    evLeadInfo = {
+      firstName: "",
+      contact: "",
+      contactType: "",
+      conversationId: ""
+    };
+
+    evLeadStep = "firstName";
+    evSetPlaceholder();
+    evShowSuggestions(false);
+    evAddMessage("Hey, welcome to Ell Vii’s Automations. Before we get started, what’s your first name?", "bot", false);
+  }
+
+  window.toggleEvChat = function(){
+    const panel = document.getElementById("evChatPanel");
+    if(!panel) return;
+
+    panel.style.display = panel.style.display === "flex" ? "none" : "flex";
+
+    if(panel.style.display === "flex" && !evChatInitialized){
+      evChatInitialized = true;
+      evStartChat();
+      setTimeout(function(){
+        evInput()?.focus();
+      }, 150);
+    }
+  };
+
+  window.evQuickReply = function(topic){
+    if(evLeadStep !== "ready"){
+      evBotReply("Absolutely — I can help with that. First, I need your first name and either an email or phone number so we have a way to follow up.");
+      evShowSuggestions(false);
+      return;
+    }
+
+    const labels = {
+      website: "I need a website",
+      websiteOnly: "Can I just get a website with no monthly plan?",
+      upkeep: "What does website upkeep include?",
+      crm: "I need a CRM",
+      phone: "I miss calls/leads",
+      pricing: "Show pricing",
+      values: "Are you faith-based?"
+    };
+
+    evAddMessage(labels[topic] || topic, "user", true);
+
+    if(topic === "website"){
+      evRespondFromLibrary("website");
+      document.getElementById("services")?.scrollIntoView({behavior:"smooth"});
+    }
+
+    if(topic === "websiteOnly"){
+      evRespondFromLibrary("websiteOnly");
+      document.getElementById("pricing")?.scrollIntoView({behavior:"smooth"});
+    }
+
+    if(topic === "upkeep"){
+      evRespondFromLibrary("upkeep");
+      document.getElementById("pricing")?.scrollIntoView({behavior:"smooth"});
+    }
+
+    if(topic === "crm"){
+      evRespondFromLibrary("crm");
+      document.getElementById("crm")?.scrollIntoView({behavior:"smooth"});
+    }
+
+    if(topic === "phone"){
+      evRespondFromLibrary("phone");
+      document.getElementById("phones")?.scrollIntoView({behavior:"smooth"});
+    }
+
+    if(topic === "pricing"){
+      evRespondFromLibrary("pricing");
+      document.getElementById("pricing")?.scrollIntoView({behavior:"smooth"});
+    }
+
+    if(topic === "values"){
+      evRespondFromLibrary("values");
+      document.getElementById("values")?.scrollIntoView({behavior:"smooth"});
+    }
+  };
+
+  window.evSendChat = async function(){
+    const input = evInput();
+    if(!input) return;
+
+    const text = input.value.trim();
+    if(!text) return;
+
+    input.value = "";
+
+    evAddMessage(text, "user", evLeadStep === "ready");
+
+    if(evLeadStep === "firstName"){
+      const firstName = evCleanFirstName(text);
+
+      if(!firstName || firstName.length < 2){
+        evBotReply("I’ll need your first name before we get started.");
+        return;
+      }
+
+      evLeadInfo.firstName = firstName;
+      evLeadStep = "contact";
+      evSetPlaceholder();
+      evShowSuggestions(false);
+
+      evBotReply("Thanks, " + firstName + ". What’s the best way to reach you — email or phone number?");
+      return;
+    }
+
+    if(evLeadStep === "contact"){
+      if(!evIsValidEmail(text) && !evIsValidPhone(text)){
+        evBotReply((evLeadInfo.firstName || "Thanks") + ", I’ll need either a valid email address or phone number before we continue.");
+        return;
+      }
+
+      evLeadInfo.contact = text;
+      evLeadInfo.contactType = evDetectContactType(text);
+
+      try{
+        await evStartConversationOnServer();
+      }catch(error){
+        console.error(error);
+        evBotReply("I’m having trouble saving your contact details right now. Please contact us directly at info@ellviisautomations.com.");
+        return;
+      }
+
+      evLeadStep = "ready";
+      evSetPlaceholder();
+      evShowSuggestions(true);
+
+      evBotReply("Perfect, " + evLeadInfo.firstName + ". I have your contact details. How can I help you today?");
+      return;
+    }
+
+    const q = text.toLowerCase();
+    const name = evLeadInfo.firstName || "there";
+
+    if(q.includes("price") || q.includes("cost") || q.includes("pricing") || q.includes("how much")){
+      window.evQuickReply("pricing");
+      return;
+    }
+
+    if(q.includes("crm") || q.includes("lead") || q.includes("follow") || q.includes("pipeline")){
+      window.evQuickReply("crm");
+      return;
+    }
+
+    if(q.includes("phone") || q.includes("call") || q.includes("text") || q.includes("twilio") || q.includes("missed")){
+      window.evQuickReply("phone");
+      return;
+    }
+
+    if(q.includes("website") || q.includes("site") || q.includes("seo")){
+      window.evQuickReply("website");
+      return;
+    }
+
+    if(q.includes("faith") || q.includes("christian") || q.includes("values") || q.includes("serve all")){
+      window.evQuickReply("values");
+      return;
+    }
+
+    evBotReply("Good question, " + name + ". The safest starting point is usually a website prototype. Then we add hosting, CRM, phone workflows, SEO, or AI only if the business actually needs them.");
+  };
+
+  document.addEventListener("DOMContentLoaded", function(){
+    evShowSuggestions(false);
+    evSetPlaceholder();
+  });
+})();
+</script>
+<!-- ELLVII_LEAD_GATE_OVERRIDE_END -->
+
+
 <!-- ELLVII_LEGAL_FOOTER_START -->
 <style>
   .ellvii-legal-footer {
