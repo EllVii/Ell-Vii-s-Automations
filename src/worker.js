@@ -1,20 +1,57 @@
+function securityHeaders(extraHeaders = {}) {
+  return {
+    ...extraHeaders,
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+  };
+}
+
 function jsonResponse(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: {
+    headers: securityHeaders({
       "Content-Type": "application/json; charset=utf-8",
       "Cache-Control": "no-store",
-    },
+    }),
   });
 }
 
 function htmlResponse(html, status = 200) {
   return new Response(html, {
     status,
-    headers: {
+    headers: securityHeaders({
       "Content-Type": "text/html; charset=utf-8",
       "Cache-Control": "no-store",
-    },
+    }),
+  });
+}
+
+function redirectToHttps(request) {
+  const url = new URL(request.url);
+  const forwardedProto = request.headers.get("X-Forwarded-Proto");
+
+  if (url.protocol === "http:" || forwardedProto === "http") {
+    url.protocol = "https:";
+    return Response.redirect(url.toString(), 301);
+  }
+
+  return null;
+}
+
+async function assetResponse(request, env, pathname = null) {
+  const assetRequest = pathname ? rewriteAssetRequest(request, pathname) : request;
+  const response = await env.ASSETS.fetch(assetRequest);
+  const headers = new Headers(response.headers);
+
+  headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
+  headers.set("X-Content-Type-Options", "nosniff");
+  headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
   });
 }
 
@@ -415,6 +452,9 @@ const adminHTML = `<!DOCTYPE html>
 
 export default {
   async fetch(request, env) {
+    const httpsRedirect = redirectToHttps(request);
+    if (httpsRedirect) return httpsRedirect;
+
     const url = new URL(request.url);
     const path = normalizePath(url.pathname);
 
@@ -464,15 +504,15 @@ export default {
     }
 
     if (path === "/terms") {
-      return env.ASSETS.fetch(rewriteAssetRequest(request, "/terms.html"));
+      return assetResponse(request, env, "/terms.html");
     }
 
     if (path === "/privacy") {
-      return env.ASSETS.fetch(rewriteAssetRequest(request, "/privacy.html"));
+      return assetResponse(request, env, "/privacy.html");
     }
 
     if (env && env.ASSETS) {
-      return env.ASSETS.fetch(request);
+      return assetResponse(request, env);
     }
 
     return new Response("Not Found", { status: 404 });
