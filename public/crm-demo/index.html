@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
+  <title>Ell Vii's CRM Demo | Four Focus Modes + Twilio</title>
+  <style>
+    :root{--bg:#f8fafc;--card:#fff;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;--brand:#0f766e;--brand-hover:#115e59;--brand-light:#f0fdfa;--danger:#dc2626;--good:#16a34a;--accent:#f59e0b;--shadow:0 10px 15px -3px rgb(0 0 0 / .1);--radius:16px}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--ink);overflow-x:hidden}
+    .muted{color:var(--muted)}.small{font-size:12px;color:var(--muted);line-height:1.45}
+    .app{display:grid;grid-template-columns:280px 1fr;min-height:100vh}.mobile{display:none;position:sticky;top:0;z-index:100;background:#1e293b;color:white;padding:14px 18px;justify-content:space-between;align-items:center}
+    aside{background:#1e293b;color:white;padding:28px 22px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:20px;overflow:auto}
+    .brand h1{margin:0;font-size:22px;letter-spacing:-.04em}.brand p{margin:4px 0;color:#94a3b8;font-size:12px}
+    nav{display:flex;flex-direction:column;gap:5px;flex:1}nav button{background:transparent;border:0;color:#cbd5e1;padding:12px 14px;border-radius:12px;text-align:left;font-size:14px;font-weight:850;cursor:pointer}nav button:hover{background:rgba(255,255,255,.06);color:#fff}nav button.active{background:var(--brand);color:#fff}
+    main{padding:34px;max-width:1440px;width:100%;margin:0 auto}.top{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:24px}
+    h2{font-size:32px;letter-spacing:-.05em;margin:0}.mode-pill{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);background:white;border-radius:999px;padding:8px 12px;font-size:12px;font-weight:950;color:#334155;margin-bottom:10px}
+    .section{display:none}.section.active{display:block}.card{background:white;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}.grid{display:grid;gap:20px}.grid.stats{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}.grid.two{grid-template-columns:1fr 1fr}.grid.three{grid-template-columns:repeat(3,1fr)}
+    .stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-weight:950}.stat-value{font-size:30px;font-weight:950;letter-spacing:-.04em;margin-top:4px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:12px;padding:11px 15px;font-weight:950;cursor:pointer;text-decoration:none;white-space:nowrap}.btn-sm{padding:7px 10px;font-size:12px}.primary{background:var(--brand);color:#fff}.secondary{background:#eef2f7;color:#334155;border:1px solid var(--line)}.danger{background:var(--danger);color:#fff}.good{background:var(--good);color:#fff}.warning{background:var(--accent);color:#fff}
+    .badge{display:inline-flex;border-radius:999px;padding:4px 8px;font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:950;border:1px solid transparent}.badge.brand{background:var(--brand-light);color:var(--brand);border-color:var(--brand)}.badge.good{background:#ecfdf5;color:#047857;border-color:#a7f3d0}.badge.warn{background:#fffbeb;color:#b45309;border-color:#fde68a}.badge.danger{background:#fef2f2;color:#b91c1c;border-color:#fecaca}.badge.neutral{background:#f1f5f9;color:#475569;border-color:#cbd5e1}
+    input,select,textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font:inherit;background:white}textarea{min-height:100px}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.form-group{margin-bottom:12px}label{display:block;font-size:11px;font-weight:950;text-transform:uppercase;letter-spacing:.08em;color:#334155;margin-bottom:6px}
+    table{width:100%;border-collapse:collapse;min-width:980px}th{text-align:left;background:#f8fafc;padding:13px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}td{padding:13px;border-top:1px solid var(--line);font-size:14px;vertical-align:top}.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:#fff;-webkit-overflow-scrolling:touch}
+    .scroll-x{overflow-x:auto;-webkit-overflow-scrolling:touch}.calendar{display:grid;grid-template-columns:repeat(7,minmax(105px,1fr));min-width:760px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff}.day-name{background:#f1f5f9;text-align:center;font-size:11px;font-weight:950;color:var(--muted);text-transform:uppercase;padding:9px}.cell{min-height:96px;border-top:1px solid var(--line);border-right:1px solid var(--line);padding:8px}.today{box-shadow:inset 0 0 0 2px var(--brand);background:var(--brand-light)}.event{display:block;margin-top:5px;background:var(--brand);color:#fff;border-radius:7px;padding:4px 5px;font-size:10px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+    .phone-panel{background:#0f172a;color:white;border-radius:24px;padding:22px;box-shadow:0 20px 50px rgba(15,23,42,.18)}.phone-panel .muted{color:#cbd5e1}.phone-screen{background:#fff;color:var(--ink);border-radius:20px;padding:18px;margin-top:16px}.call-log{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;border-bottom:1px solid var(--line);padding:12px 0}.call-log:last-child{border-bottom:0}
+    .ai-toggle{position:fixed;right:22px;bottom:22px;width:62px;height:62px;border-radius:50%;background:var(--brand);color:white;border:4px solid white;box-shadow:0 12px 30px rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;font-weight:950;cursor:pointer;z-index:90}.ai-panel{position:fixed;right:22px;bottom:94px;width:420px;max-width:calc(100vw - 30px);height:600px;max-height:calc(100vh - 120px);display:none;flex-direction:column;background:white;border:1px solid var(--line);border-radius:18px;box-shadow:0 20px 50px rgba(0,0,0,.22);overflow:hidden;z-index:90}.ai-head{background:#0f172a;color:white;padding:16px;display:flex;justify-content:space-between}.ai-body{padding:14px;overflow:auto;background:#f1f5f9;flex:1}.ai-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px;margin-bottom:10px;cursor:pointer}.mark{font-weight:950;background:#fef9c3;color:#000;border-radius:3px;padding:0 2px}
+    @media(max-width:900px){.app{grid-template-columns:1fr}.mobile{display:flex}aside{position:fixed;left:0;top:0;bottom:0;width:280px;z-index:200;transform:translateX(-100%)}aside.open{transform:translateX(0)}.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:150}.overlay.open{display:block}main{padding:20px 14px}.grid.two,.grid.three,.form-row{grid-template-columns:1fr}.btn{width:100%}.inline{width:auto}.ai-panel{right:15px;bottom:88px}.top-actions{width:100%;display:grid;gap:8px}}
+  </style>
+</head>
+<body>
+  <div class="mobile"><strong id="mobileTitle">Ell Vii's CRM</strong><button class="btn primary inline" onclick="toggleSide()">Menu</button></div>
+  <div id="overlay" class="overlay" onclick="toggleSide(false)"></div>
+  <div class="app">
+    <aside id="side">
+      <div class="brand"><h1>Ell Vii's CRM</h1><p>Four Modes + Twilio Demo</p></div>
+      <nav>
+        <button class="active" onclick="navTo('dashboard',this)">Dashboard</button>
+        <button onclick="navTo('records',this)">Records</button>
+        <button onclick="navTo('pipeline',this)">Pipeline</button>
+        <button onclick="navTo('phones',this)">Phone Workflow</button>
+        <button onclick="navTo('calendar',this)">Calendar</button>
+        <button onclick="navTo('chatAdmin',this)">Chat Admin</button>
+        <button onclick="navTo('settings',this)">Settings</button>
+      </nav>
+      <div class="small" style="border-top:1px solid rgba(255,255,255,.1);padding-top:16px;color:#94a3b8">Demo uses localStorage. Production needs backend, auth, Twilio webhooks, and A2P setup.</div>
+    </aside>
+
+    <main>
+      <div class="top">
+        <div>
+          <div id="modePill" class="mode-pill">Home Services Mode</div>
+          <h2 id="pageTitle">Dashboard</h2>
+          <p class="muted" id="pageSub">Industry-specific CRM workflow preview.</p>
+        </div>
+        <div class="top-actions" style="display:flex;gap:10px;flex-wrap:wrap">
+          <a class="btn secondary inline" href="/">Sales Website</a>
+          <button class="btn primary inline" onclick="navTo('records')">+ New Record</button>
+          <button class="btn secondary inline" onclick="loadDemo()">Load Demo</button>
+        </div>
+      </div>
+
+      <section id="dashboard" class="section active">
+        <div id="stats" class="grid stats"></div>
+        <div class="grid two" style="margin-top:20px">
+          <div class="card"><h3 style="margin-top:0">Urgent Actions</h3><div id="urgentList"></div></div>
+          <div class="card"><h3 style="margin-top:0">Pipeline by Source</h3><div id="sourceList"></div></div>
+        </div>
+        <div class="grid two" style="margin-top:20px">
+          <div class="card"><h3 style="margin-top:0">Strategic Opportunities</h3><div id="strategicList"></div></div>
+          <div class="card"><h3 style="margin-top:0">Phone Protection</h3><p class="muted">Missed calls and texts should create records, trigger ELA, and show where the opportunity came from.</p><div id="phoneSummary"></div></div>
+        </div>
+      </section>
+
+      <section id="records" class="section">
+        <div class="card" style="margin-bottom:20px">
+          <h3 id="recordTitle" style="margin-top:0">Record Profile</h3>
+          <form id="recordForm" onsubmit="saveRecord(event)">
+            <input type="hidden" id="editId">
+            <div class="form-row">
+              <div class="form-group"><label id="labelCompany">Lead / Company</label><input id="company" required></div>
+              <div class="form-group"><label id="labelContact">Contact</label><input id="contact"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Status</label><select id="status"></select></div>
+              <div class="form-group"><label id="labelDate">Next Date</label><input type="date" id="date"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label id="labelValue">Value</label><input type="number" id="value"></div>
+              <div class="form-group"><label id="labelSource">Source</label><select id="source"></select></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label id="labelOwner">Owner</label><input id="owner"></div>
+              <div class="form-group"><label>Confidence</label><select id="confidence"><option>High</option><option>Medium</option><option>Low</option></select></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label id="labelSize">Size / Priority</label><select id="size"></select></div>
+              <div class="form-group"><label id="labelType">Type</label><select id="type"></select></div>
+            </div>
+            <div id="extraFields"></div>
+            <div class="form-row">
+              <div class="form-group"><label>Twilio Phone Path</label><select id="phonePath"><option>Not Connected</option><option>Ported Number</option><option>Forwarded Call</option><option>Hosted SMS</option><option>New CRM Number</option></select></div>
+              <div class="form-group"><label>ELA Status</label><select id="ela"><option>On Track</option><option>Due Soon</option><option>Overdue</option><option>Reset After Touch</option></select></div>
+            </div>
+            <div class="form-group"><label>Notes</label><textarea id="notes" placeholder="#important #payment #followup"></textarea></div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <button class="btn primary inline" type="submit">Save Record</button>
+              <button class="btn secondary inline" type="button" onclick="resetForm()">Clear</button>
+            </div>
+          </form>
+        </div>
+        <div class="table-wrap"><table><thead id="recordHead"></thead><tbody id="recordRows"></tbody></table></div>
+      </section>
+
+      <section id="pipeline" class="section">
+        <div class="grid stats" id="pipeCards"></div>
+        <div class="table-wrap" style="margin-top:20px"><table><thead><tr><th>Opportunity</th><th>Source</th><th>Value</th><th>Owner</th><th>Confidence</th><th>Size</th><th>Phone Path</th><th>Detail</th></tr></thead><tbody id="pipeRows"></tbody></table></div>
+      </section>
+
+      <section id="phones" class="section">
+        <div class="grid two">
+          <div class="phone-panel">
+            <h2 style="margin:0">Twilio Phone Workflow</h2>
+            <p class="muted">Demo buttons simulate events that would be handled by backend Twilio webhooks in production.</p>
+            <div class="phone-screen">
+              <div class="grid">
+                <button class="btn primary" onclick="simulateCall('answered')">Simulate Answered Call</button>
+                <button class="btn warning" onclick="simulateCall('missed')">Simulate Missed Call</button>
+                <button class="btn good" onclick="simulateText()">Simulate SMS Follow-Up</button>
+              </div>
+              <h3>Recent Phone Events</h3>
+              <div id="callLogs"></div>
+            </div>
+          </div>
+          <div class="card">
+            <h3 style="margin-top:0">Phone Add-On Plans</h3>
+            <div id="phonePlans"></div>
+          </div>
+        </div>
+        <div class="grid three" style="margin-top:20px">
+          <div class="card"><h3>Ported Number</h3><p class="muted">Best for full CRM call/text control. The public number moves to Twilio.</p></div>
+          <div class="card"><h3>Forwarded Call</h3><p class="muted">Best low-risk trial. Client keeps current carrier and forwards calls to CRM number.</p></div>
+          <div class="card"><h3>Hosted SMS</h3><p class="muted">Best split option if eligible. Voice stays put; SMS routes through Twilio.</p></div>
+        </div>
+      </section>
+
+      <section id="calendar" class="section">
+        <div class="card">
+          <div style="display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:14px">
+            <div style="display:flex;gap:8px;align-items:center"><button class="btn secondary btn-sm inline" onclick="moveMonth(-1)">←</button><h3 id="monthLabel" style="margin:0;min-width:150px;text-align:center"></h3><button class="btn secondary btn-sm inline" onclick="moveMonth(1)">→</button></div>
+            <button class="btn primary btn-sm inline" onclick="resetCal()">Today</button>
+            <input id="calendarSearch" placeholder="Search calendar..." oninput="renderCalendar()" style="max-width:320px">
+          </div>
+          <div class="scroll-x"><div id="calendarGrid" class="calendar"></div></div>
+        </div>
+      </section>
+
+
+      <section id="chatAdmin" class="section">
+        <div class="grid two">
+          <div class="card">
+            <h3 style="margin-top:0">Chat Response Library</h3>
+            <p class="muted">Edit suggested website chatbot responses. This demo uses browser storage. Production should use a database.</p>
+
+            <div class="form-group">
+              <label>Response Key</label>
+              <select id="crmResponseKey" onchange="crmLoadChatResponse()"></select>
+            </div>
+
+            <div class="form-group">
+              <label>Label</label>
+              <input id="crmResponseLabel">
+            </div>
+
+            <div class="form-group">
+              <label>Response Text</label>
+              <textarea id="crmResponseText"></textarea>
+            </div>
+
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <button class="btn primary inline" onclick="crmSaveChatResponse()">Save Response</button>
+              <button class="btn secondary inline" onclick="crmResetChatResponses()">Reset Defaults</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 style="margin-top:0">Website Chat Logs</h3>
+            <p class="muted">Local website chatbot logs saved in this browser.</p>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+              <button class="btn secondary inline" onclick="crmRenderChatLogs()">Refresh</button>
+              <button class="btn danger inline" onclick="crmClearChatLogs()">Clear Logs</button>
+            </div>
+            <div id="crmChatLogs"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="settings" class="section">
+        <div class="grid two">
+          <div class="card">
+            <h3 style="margin-top:0">Industry Mode</h3>
+            <p class="muted">Switch language, fields, statuses, sources, dashboard labels, and demo data.</p>
+            <div class="form-group"><label>Mode</label><select id="modeSelect" onchange="setMode(this.value)"><option value="home">Home Services</option><option value="beauty">Beauty / Wellness</option><option value="restaurant">Restaurant / Hospitality</option><option value="housing">Housing / Rental</option></select></div>
+            <button class="btn secondary inline" onclick="loadDemo()">Load This Mode's Demo</button>
+          </div>
+          <div class="card">
+            <h3 style="margin-top:0">Branding</h3>
+            <div class="form-group"><label>CRM Name</label><input id="brandName" value="Ell Vii's CRM"></div>
+            <div class="form-group"><label>Brand Color</label><input type="color" id="brandColor" value="#0f766e"></div>
+            <button class="btn primary inline" onclick="saveBrand()">Apply Brand</button>
+          </div>
+          <div class="card">
+            <h3 style="margin-top:0">Data</h3>
+            <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn secondary inline" onclick="exportData()">Export Backup</button><button class="btn danger inline" onclick="clearData()">Wipe Demo Data</button></div>
+          </div>
+          <div class="card">
+            <h3 style="margin-top:0">Production Note</h3>
+            <p class="muted">This is a local demo. Production needs authentication, database storage, Twilio webhooks, A2P 10DLC setup for SMS, opt-in language, and secure role-based access.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="ai-toggle" onclick="toggleAI()">AI</div>
+  <div class="ai-panel" id="aiPanel"><div class="ai-head"><strong>Speed-Read Search</strong><span onclick="toggleAI()" style="cursor:pointer;font-size:22px">&times;</span></div><div class="ai-body"><input id="aiInput" placeholder="Search #important, owner, source, phone path..." oninput="runSearch()"><div id="aiResults"></div></div></div>
+
+<script>
+const MODES={
+ home:{name:"Home Services",labels:["Lead / Company","Contact","Next Follow-Up Date","Est. Job Value","Lead Source","Owner / Salesperson","Job Size","Service Type"],stats:["Open Leads","Urgent Today","Job Pipeline","Closed Won"],statuses:["New","Contacted","Estimate Sent","Follow-Up","Won","Lost"],sources:["Website Form","Missed Call","Google Ads","Referral","Direct Outreach","Repeat Customer"],sizes:["Small","Medium","Large","Strategic"],types:["Estimate Follow-Up","Payment Reminder","Service Appointment","Review Request","Maintenance Plan"],extra:[["extra1","Job Address"],["extra2","Photos / Estimate Notes"]],demo:[["Apex Roofing","Bob Smith","Estimate Sent",4500,"Google Ads","Marcus","High","Strategic","Estimate Follow-Up","#important roof quote. Needs call back and payment terms.","123 Main St","Photos pending"],["Green Garden","Ivy Green","Follow-Up",2600,"Direct Outreach","Larry","High","Strategic","Service Appointment","#important landscape account. Press this week.","Glendale 85302","Before photos needed"],["Paws Pool Service","Mark Ruff","New",900,"Missed Call","Admin","Medium","Medium","Estimate Follow-Up","#missedcall pool service inquiry.","Peoria",""]]},
+ beauty:{name:"Beauty / Wellness",labels:["Client / Booking","Client Name","Appointment / Follow-Up Date","Service Value","Booking Source","Provider","Client Tier","Service Type"],stats:["Open Bookings","Due Today","Booking Value","Completed"],statuses:["New Inquiry","Booked","Deposit Due","Completed","No-Show","Lost"],sources:["Website Form","Instagram","Referral","Google Search","Phone Call"],sizes:["New Client","Repeat Client","VIP","Bridal / Event"],types:["Booking Reminder","Deposit Reminder","Review Request","No-Show Follow-Up","VIP Follow-Up"],extra:[["extra1","Service Notes"],["extra2","Before / After Photo Notes"]],demo:[["WBeauty Bridal Trial","Maria Lopez","Booked",375,"Instagram","Wanda","High","Bridal / Event","Deposit Reminder","#deposit due. Bridal trial and wedding date notes.","Soft glam + lashes","Before photo uploaded"],["Massage Renewal","Brian P.","New Inquiry",197,"Website Form","Larry","Medium","Repeat Client","Booking Reminder","#followup wants monthly plan.","Deep tissue",""],["Lash Fill VIP","Tanya M.","Completed",95,"Referral","Wanda","High","VIP","Review Request","#review ask for Google review.","Volume fill","After photo good"]]},
+ restaurant:{name:"Restaurant / Hospitality",labels:["Guest / Event","Primary Contact","Event / Follow-Up Date","Event / Order Value","Inquiry Channel","Manager","Opportunity Size","Hospitality Type"],stats:["Open Food Leads","Events Due","Event Pipeline","Completed Events"],statuses:["New Inquiry","Contacted","Tasting / Details","Deposit Due","Booked","Completed","Lost"],sources:["Website Form","Phone Call","Google Search","Walk-In","Referral","Social Media"],sizes:["Small Party","Large Party","Catering","Corporate","VIP"],types:["Catering Lead","Private Event","Corporate Order","Birthday / Anniversary","Complaint Recovery","Review Request"],extra:[["extra1","Guest Count / Headcount"],["extra2","Deposit / Payment"],["extra3","Food Notes / Allergies"]],demo:[["Desert Tech Lunch Order","Maya Torres","Deposit Due",2400,"Website Form","Carlos","High","Corporate","Corporate Order","#important corporate lunch. Need deposit and menu.","45 guests","Deposit pending","2 vegetarian"],["Rivera Anniversary","Elena Rivera","Tasting / Details",1800,"Phone Call","Nina","Medium","Large Party","Private Event","#followup patio space and dessert options.","28 guests","No deposit yet","No shellfish"],["Complaint Recovery","Andre Bell","Contacted",150,"Google Search","Manager","Medium","VIP","Complaint Recovery","#urgent late order recovery.","2 guests","Comp card approved","Prefers text"]]},
+ housing:{name:"Housing / Rental",labels:["Prospect / Unit","Primary Contact","Showing / Task Date","Rent / Opportunity Value","Inquiry Source","Leasing Owner","Priority / Unit Type","Housing Workflow"],stats:["Open Prospects","Tasks Due","Rental Pipeline","Lease Signed"],statuses:["New Inquiry","Showing Scheduled","Application Sent","Application Received","Screening Pending","Lease Sent","Lease Signed","Resident","Maintenance","Closed"],sources:["Website Form","Rental Listing","Referral","Walk-In","Phone Call","Community Board","Resident Referral"],sizes:["Studio / Room","1-2 Bedroom","3+ Bedroom","Portfolio / Multi-Unit","Urgent Maintenance"],types:["Rental Inquiry","Showing","Application Follow-Up","Lease Task","Move-In Task","Move-Out Task","Maintenance Request","Renewal Follow-Up"],extra:[["extra1","Property / Unit"],["extra2","Rent / Deposit Details"],["extra3","Compliance-Safe Notes"]],demo:[["28422 N 32nd Ln Inquiry","Lawrence V.","Showing Scheduled",3100,"Rental Listing","Leasing Team","High","3+ Bedroom","Showing","#showing #followup keep notes factual.","28422 N 32nd Ln","$3,100 target","Showing requested."],["Unit 12B Maintenance","Current Resident","Maintenance",350,"Phone Call","Maintenance Coordinator","High","Urgent Maintenance","Maintenance Request","#urgent AC not cooling. Vendor assigned.","Unit 12B","Vendor estimate pending","Maintenance request logged."],["Lease Renewal Window","Tenant A.","Resident",2200,"Resident Referral","Property Manager","Medium","1-2 Bedroom","Renewal Follow-Up","#renewal lease ends in 75 days.","Unit 5","Current rent $2,200","Renewal reminder only."]]}
+};
+const KEY="ell_viis_crm_full_v58";
+let db=JSON.parse(localStorage.getItem(KEY))||{mode:"home",brand:"Ell Vii's CRM",color:"#0f766e",records:[],logs:[]};
+let calDate=new Date();
+function mode(){return MODES[db.mode]||MODES.home}
+function save(){localStorage.setItem(KEY,JSON.stringify(db));render()}
+function navTo(id,btn){document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");if(btn){document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));btn.classList.add("active")}document.getElementById("pageTitle").textContent={dashboard:"Dashboard",records:"Records",pipeline:"Pipeline",phones:"Phone Workflow",calendar:"Calendar",chatAdmin:"Chat Admin",settings:"Settings"}[id]||id;if(innerWidth<900)toggleSide(false)}
+function toggleSide(force){let s=document.getElementById("side"),o=document.getElementById("overlay");let st=force!==undefined?force:!s.classList.contains("open");s.classList.toggle("open",st);o.classList.toggle("open",st)}
+function today(){return new Date().toISOString().split("T")[0]} function money(n){return "$"+Number(n||0).toLocaleString()} function esc(s){let p=document.createElement("p");p.textContent=s==null?"":String(s);return p.innerHTML}
+function applyMode(){let m=mode();document.getElementById("modePill").textContent=m.name+" Mode";document.getElementById("labelCompany").textContent=m.labels[0];document.getElementById("labelContact").textContent=m.labels[1];document.getElementById("labelDate").textContent=m.labels[2];document.getElementById("labelValue").textContent=m.labels[3];document.getElementById("labelSource").textContent=m.labels[4];document.getElementById("labelOwner").textContent=m.labels[5];document.getElementById("labelSize").textContent=m.labels[6];document.getElementById("labelType").textContent=m.labels[7];fillSelect("status",m.statuses);fillSelect("source",m.sources);fillSelect("size",m.sizes);fillSelect("type",m.types);document.getElementById("extraFields").innerHTML=m.extra.map(x=>`<div class="form-group"><label>${x[1]}</label><input id="${x[0]}"></div>`).join("");document.getElementById("recordTitle").textContent=m.labels[0]+" Profile"}
+function fillSelect(id,arr){let el=document.getElementById(id),cur=el.value;el.innerHTML=arr.map(x=>`<option>${esc(x)}</option>`).join("");if(arr.includes(cur))el.value=cur}
+function render(){document.documentElement.style.setProperty("--brand",db.color);document.documentElement.style.setProperty("--brand-light",db.color+"18");document.getElementById("mobileTitle").textContent=db.brand;document.getElementById("brandName").value=db.brand;document.getElementById("brandColor").value=db.color;document.getElementById("modeSelect").value=db.mode;applyMode();renderDash();renderRows();renderPipe();renderPhones();renderCal()}
+function closed(r){return["Won","Lost","Completed","Closed","Lease Signed","Resident"].includes(r.status)} function won(r){return["Won","Completed","Booked","Lease Signed","Resident"].includes(r.status)}
+function renderDash(){let m=mode(),active=db.records.filter(r=>!closed(r)),due=active.filter(r=>r.date&&r.date<=today()),pipe=active.reduce((a,b)=>a+Number(b.value||0),0),wins=db.records.filter(won).length;document.getElementById("stats").innerHTML=`<div class="card"><span class="stat-label">${m.stats[0]}</span><div class="stat-value">${db.records.length}</div></div><div class="card"><span class="stat-label">${m.stats[1]}</span><div class="stat-value" style="color:var(--accent)">${due.length}</div></div><div class="card"><span class="stat-label">${m.stats[2]}</span><div class="stat-value">${money(pipe)}</div></div><div class="card"><span class="stat-label">${m.stats[3]}</span><div class="stat-value" style="color:var(--good)">${wins}</div></div>`;
+document.getElementById("urgentList").innerHTML=due.map(r=>`<div class="call-log"><div><b>${esc(r.company)}</b><br><small class="muted">${esc(r.date)} • ${esc(r.type)}</small></div><button class="btn primary btn-sm inline" onclick="editRecord('${r.id}')">View</button></div>`).join("")||'<p class="muted">No urgent items.</p>';
+let by={};active.forEach(r=>by[r.source]=(by[r.source]||0)+Number(r.value||0));document.getElementById("sourceList").innerHTML=Object.entries(by).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="call-log"><b>${esc(k)}</b><span>${money(v)}</span></div>`).join("")||'<p class="muted">No pipeline yet.</p>';
+document.getElementById("strategicList").innerHTML=active.filter(r=>["Strategic","VIP","Corporate","Catering","Portfolio / Multi-Unit","Urgent Maintenance"].includes(r.size)||Number(r.value)>=2500).map(r=>`<div class="call-log"><div><b>${esc(r.company)}</b><br><small class="muted">${money(r.value)} • ${esc(r.owner)} • ${esc(detail(r))}</small></div><span class="badge warn">Focus</span></div>`).join("")||'<p class="muted">No strategic records.</p>';
+document.getElementById("phoneSummary").innerHTML=`<div class="call-log"><b>Phone-connected records</b><span>${db.records.filter(r=>r.phonePath&&r.phonePath!="Not Connected").length}</span></div><div class="call-log"><b>Missed call logs</b><span>${db.logs.filter(l=>l.kind=="missed").length}</span></div>`}
+function renderRows(){let m=mode();document.getElementById("recordHead").innerHTML=`<tr><th>${m.labels[0]}</th><th>Status</th><th>${m.labels[2]}</th><th>${m.labels[3]}</th><th>${m.labels[4]}</th><th>${m.labels[5]}</th><th>Phone</th><th>Detail</th><th>Action</th></tr>`;document.getElementById("recordRows").innerHTML=db.records.map(r=>`<tr><td><b>${esc(r.company)}</b><br><small class="muted">${esc(r.contact)}</small></td><td><span class="badge ${won(r)?"good":"brand"}">${esc(r.status)}</span></td><td>${esc(r.date||"—")}</td><td>${money(r.value)}</td><td>${esc(r.source)}</td><td>${esc(r.owner)}</td><td>${esc(r.phonePath||"Not Connected")}<br><small class="muted">${esc(r.ela)}</small></td><td>${esc(detail(r))}</td><td><button class="btn secondary btn-sm inline" onclick="editRecord('${r.id}')">Edit</button></td></tr>`).join("")||'<tr><td colspan="9" class="muted">No records yet.</td></tr>'}
+function renderPipe(){let active=db.records.filter(r=>!closed(r));let byS={},byO={};active.forEach(r=>{byS[r.source]=(byS[r.source]||0)+Number(r.value||0);byO[r.owner]=(byO[r.owner]||0)+Number(r.value||0)});let topS=Object.entries(byS).sort((a,b)=>b[1]-a[1])[0],topO=Object.entries(byO).sort((a,b)=>b[1]-a[1])[0],big=active.slice().sort((a,b)=>Number(b.value)-Number(a.value))[0];document.getElementById("pipeCards").innerHTML=`<div class="card"><span class="stat-label">Top Source</span><div class="stat-value">${topS?esc(topS[0]):"—"}</div></div><div class="card"><span class="stat-label">Top Owner</span><div class="stat-value">${topO?esc(topO[0]):"—"}</div></div><div class="card"><span class="stat-label">Largest</span><div class="stat-value">${big?money(big.value):"—"}</div></div>`;document.getElementById("pipeRows").innerHTML=active.map(r=>`<tr><td><b>${esc(r.company)}</b></td><td>${esc(r.source)}</td><td>${money(r.value)}</td><td>${esc(r.owner)}</td><td>${esc(r.confidence)}</td><td>${esc(r.size)}</td><td>${esc(r.phonePath)}</td><td>${esc(detail(r))}</td></tr>`).join("")||'<tr><td colspan="8" class="muted">No active pipeline.</td></tr>'}
+function renderPhones(){document.getElementById("phonePlans").innerHTML=`<div class="call-log"><div><b>Phone Lite</b><br><small class="muted">$79/mo • 500 mins + 500 SMS allowance</small></div><span class="badge brand">Lite</span></div><div class="call-log"><div><b>Phone Growth</b><br><small class="muted">$149/mo • 2,000 mins + 2,000 SMS allowance</small></div><span class="badge good">Core</span></div><div class="call-log"><div><b>Phone Pro</b><br><small class="muted">$297/mo • 5,000 mins + 5,000 SMS allowance</small></div><span class="badge warn">Pro</span></div><p class="small">High-volume call centers, heavy texting, transcription, or advanced recording are quoted separately.</p>`;
+document.getElementById("callLogs").innerHTML=db.logs.slice(0,8).map(l=>`<div class="call-log"><div><b>${esc(l.title)}</b><br><small class="muted">${esc(l.note)}</small></div><span class="badge ${l.kind=="missed"?"warn":"good"}">${esc(l.kind)}</span></div>`).join("")||'<p class="small">No phone events yet.</p>'}
+function renderCal(){let grid=document.getElementById("calendarGrid"),label=document.getElementById("monthLabel");if(!grid)return;grid.innerHTML="";let y=calDate.getFullYear(),m=calDate.getMonth(),search=(document.getElementById("calendarSearch")?.value||"").toLowerCase();label.textContent=new Intl.DateTimeFormat("en-US",{month:"long",year:"numeric"}).format(calDate);["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(d=>grid.innerHTML+=`<div class="day-name">${d}</div>`);let first=new Date(y,m,1).getDay(),last=new Date(y,m+1,0).getDate();for(let i=0;i<first;i++)grid.innerHTML+='<div class="cell"></div>';for(let d=1;d<=last;d++){let ds=`${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;let events=db.records.filter(r=>r.date==ds&&(!search||JSON.stringify(r).toLowerCase().includes(search))).map(r=>`<span class="event" onclick="editRecord('${r.id}')">${esc(r.company)}</span>`).join("");grid.innerHTML+=`<div class="cell ${ds==today()?"today":""}"><b>${d}</b>${events}</div>`}}
+function moveMonth(n){calDate.setMonth(calDate.getMonth()+n);renderCal()} function resetCal(){calDate=new Date();renderCal()}
+function detail(r){return [r.extra1,r.extra2,r.extra3].filter(Boolean).join(" • ")||r.type||""}
+function saveRecord(e){e.preventDefault();let m=mode(),id=document.getElementById("editId").value||Date.now().toString();let r={id,mode:db.mode,company:val("company"),contact:val("contact"),status:val("status"),date:val("date"),value:val("value"),source:val("source"),owner:val("owner")||"Admin",confidence:val("confidence"),size:val("size"),type:val("type"),phonePath:val("phonePath"),ela:val("ela"),notes:val("notes")};m.extra.forEach(x=>r[x[0]]=val(x[0])||"");let idx=db.records.findIndex(x=>x.id==id);if(idx>-1)db.records[idx]=r;else db.records.unshift(r);save();resetForm()}
+function val(id){return document.getElementById(id).value} function editRecord(id){let r=db.records.find(x=>x.id==id);if(!r)return;navTo("records");Object.entries({editId:r.id,company:r.company,contact:r.contact,date:r.date,value:r.value,owner:r.owner,notes:r.notes}).forEach(([k,v])=>{let el=document.getElementById(k);if(el)el.value=v||""});["status","source","confidence","size","type","phonePath","ela"].forEach(k=>{let el=document.getElementById(k);if(el&&[...el.options].some(o=>o.value==r[k]))el.value=r[k]});mode().extra.forEach(x=>{let el=document.getElementById(x[0]);if(el)el.value=r[x[0]]||""});scrollTo({top:0,behavior:"smooth"})}
+function resetForm(){document.getElementById("recordForm").reset();document.getElementById("editId").value="";applyMode()}
+function simulateCall(kind){let m=mode(),name=kind=="missed"?"Missed Call Opportunity":"Answered Call Opportunity";let r={id:Date.now().toString(),mode:db.mode,company:name,contact:"Incoming caller",status:m.statuses[0],date:today(),value:kind=="missed"?1200:750,source:kind=="missed"?"Missed Call":"Phone Call",owner:"Admin",confidence:"Medium",size:m.sizes[1]||"Medium",type:m.types[0],phonePath:"Forwarded Call",ela:kind=="missed"?"Due Soon":"Reset After Touch",notes:kind=="missed"?"#missedcall CRM created urgent follow-up.":"#call answered and ELA reset."};db.records.unshift(r);db.logs.unshift({kind,title:kind=="missed"?"Missed call captured":"Answered call logged",note:name+" created/updated CRM record."});save()}
+function simulateText(){db.logs.unshift({kind:"sms",title:"SMS follow-up queued",note:"Demo only: production uses A2P-registered SMS workflow."});save()}
+function setMode(v){db.mode=v;save();resetForm()}
+function loadDemo(){let m=mode();db.records=m.demo.map((d,i)=>{let r={id:String(Date.now()+i),mode:db.mode,company:d[0],contact:d[1],status:d[2],value:d[3],source:d[4],owner:d[5],confidence:d[6],size:d[7],type:d[8],notes:d[9],date:i==0?today():`2026-05-${String(18+i).padStart(2,"0")}`,phonePath:i==0?"Forwarded Call":"Not Connected",ela:i==0?"Due Soon":"On Track"};m.extra.forEach((x,idx)=>r[x[0]]=d[10+idx]||"");return r});db.logs=[];save()}
+function saveBrand(){db.brand=val("brandName")||"Ell Vii's CRM";db.color=val("brandColor")||"#0f766e";save()}
+function exportData(){let b=new Blob([JSON.stringify(db,null,2)],{type:"application/json"});let a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="ell-viis-crm-demo-backup.json";a.click()}
+function clearData(){if(confirm("Wipe demo data?")){db.records=[];db.logs=[];save()}}
+function toggleAI(){let p=document.getElementById("aiPanel");p.style.display=p.style.display=="flex"?"none":"flex"}
+function runSearch(){let q=val("aiInput").toLowerCase().trim(),box=document.getElementById("aiResults");if(!q){box.innerHTML='<p class="muted">Search tags, notes, owners, sources, account size, or phone path.</p>';return}let res=db.records.filter(r=>JSON.stringify(r).toLowerCase().includes(q));box.innerHTML=res.map(r=>{let notes=esc(r.notes||"No notes.");[q,"#important","payment","missedcall","urgent"].forEach(k=>{if(k)notes=notes.replace(new RegExp(`(${k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")})`,"gi"),'<span class="mark">$1</span>')});return`<div class="ai-card" onclick="editRecord('${r.id}');toggleAI()"><b>${esc(r.company)}</b><br><small class="muted">${esc(r.source)} • ${esc(r.owner)} • ${esc(r.phonePath)}</small><p class="small">${notes}</p></div>`}).join("")||'<div class="card">No results.</div>'}
+
+function crmDefaultResponses(){
+  return {
+    website:{label:'I need a website',text:'A website starts with the $375 Prototype Launch. That includes website direction, lead-flow planning, call/book/pay structure, and basic SEO foundation. After launch, you can manage it yourself or choose an upkeep plan.'},
+    websiteOnly:{label:'Website only, no monthly?',text:'Yes. You can choose a website-only build with no monthly plan. After launch, the site is handed off and you are responsible for hosting, domain renewal, updates, edits, security, backups, forms, and broken third-party tools unless you choose a support plan.'},
+    upkeep:{label:'What does upkeep include?',text:'Website upkeep is handled through Stay Live at $197/mo. It can include hosting support, SSL checks, basic updates, monthly site checks, form checks, small text/image edits, and basic technical support. Bigger redesigns, new pages, CRM, ads, phone workflows, or major SEO work are separate.'},
+    crm:{label:'I need a CRM',text:'The CRM is separate from the public website. It includes industry modes for Home Services, Beauty/Wellness, Restaurant/Hospitality, and Housing/Rental. It helps track notes, follow-ups, pipeline, ELA accountability, and missed opportunities.'},
+    phone:{label:'I miss calls/leads',text:'For missed calls and lead protection, we use Twilio-powered phone workflows. Options include full number porting, low-risk call forwarding, or hosted SMS when eligible. The goal is simple: calls and texts should create records instead of disappearing.'},
+    pricing:{label:'Show pricing',text:'Website Prototype Launch starts at $375 one-time. Stay Live starts at $197/mo. Growth Partner starts at $397/mo. CRM add-ons start at +$97/mo. Phone workflow add-ons start at +$79/mo with included usage allowances.'},
+    values:{label:'Are you faith-based?',text:'Yes. Ell Vii’s Automations is Christian-led, faith-rooted, service-driven, and open to serving businesses of all backgrounds. We do not label people or businesses as good or bad. We serve with humility, grace, honesty, and excellence.'}
+  };
+}
+function crmGetChatResponses(){return JSON.parse(localStorage.getItem('ev_chat_responses_v1'))||crmDefaultResponses()}
+function crmSaveChatResponses(data){localStorage.setItem('ev_chat_responses_v1',JSON.stringify(data))}
+function crmPopulateChatAdmin(){
+  const select=document.getElementById('crmResponseKey');
+  if(!select) return;
+  const data=crmGetChatResponses();
+  select.innerHTML=Object.keys(data).map(k=>`<option value="${k}">${k}</option>`).join('');
+  crmLoadChatResponse();
+  crmRenderChatLogs();
+}
+function crmLoadChatResponse(){
+  const data=crmGetChatResponses();
+  const key=document.getElementById('crmResponseKey')?.value;
+  if(!key) return;
+  document.getElementById('crmResponseLabel').value=data[key]?.label||'';
+  document.getElementById('crmResponseText').value=data[key]?.text||'';
+}
+function crmSaveChatResponse(){
+  const data=crmGetChatResponses();
+  const key=document.getElementById('crmResponseKey').value;
+  data[key]={label:document.getElementById('crmResponseLabel').value,text:document.getElementById('crmResponseText').value};
+  crmSaveChatResponses(data);
+  alert('Chat response saved.');
+}
+function crmResetChatResponses(){
+  if(!confirm('Reset chatbot responses to defaults?')) return;
+  crmSaveChatResponses(crmDefaultResponses());
+  crmPopulateChatAdmin();
+}
+function crmRenderChatLogs(){
+  const box=document.getElementById('crmChatLogs');
+  if(!box) return;
+  const logs=JSON.parse(localStorage.getItem('ev_chat_logs_v1'))||[];
+  if(!logs.length){box.innerHTML='<p class="small">No website chatbot logs saved in this browser yet.</p>';return;}
+  box.innerHTML=logs.slice().reverse().map(log=>`<div class="ai-card"><b>${log.role==='user'?'Visitor':'Assistant'}</b><br><span>${esc(log.text)}</span><br><small class="muted">${new Date(log.time).toLocaleString()}</small></div>`).join('');
+}
+function crmClearChatLogs(){
+  if(!confirm('Clear local website chatbot logs?')) return;
+  localStorage.removeItem('ev_chat_logs_v1');
+  crmRenderChatLogs();
+}
+
+render();
+crmPopulateChatAdmin();
+</script>
+</body>
+</html>
