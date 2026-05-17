@@ -29,9 +29,10 @@ function htmlResponse(html, status = 200) {
 
 function redirectToHttps(request) {
   const url = new URL(request.url);
-  const forwardedProto = request.headers.get("X-Forwarded-Proto");
 
-  if (url.protocol === "http:" || forwardedProto === "http") {
+  // Only redirect when the actual request URL is HTTP.
+  // Do not use X-Forwarded-Proto here; it can create redirect loops behind Cloudflare.
+  if (url.protocol === "http:") {
     url.protocol = "https:";
     return Response.redirect(url.toString(), 301);
   }
@@ -42,6 +43,18 @@ function redirectToHttps(request) {
 async function assetResponse(request, env, pathname = null) {
   const assetRequest = pathname ? rewriteAssetRequest(request, pathname) : request;
   const response = await env.ASSETS.fetch(assetRequest);
+
+  // Prevent redirect loops if ASSETS tries to redirect/fallback instead of serving the file.
+  if (response.status >= 300 && response.status < 400) {
+    return new Response("Not Found", {
+      status: 404,
+      headers: securityHeaders({
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "no-store",
+      }),
+    });
+  }
+
   const headers = new Headers(response.headers);
 
   headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
