@@ -503,20 +503,12 @@ export default {
       });
     }
 
-    // Clean legal page routing
-    if (path === "/terms.html") {
-      return Response.redirect(new URL("/terms", request.url).toString(), 301);
-    }
-
-    if (path === "/privacy.html") {
-      return Response.redirect(new URL("/privacy", request.url).toString(), 301);
-    }
-
-    if (path === "/terms") {
+    // Legal page routing — serve directly to avoid redirect loops
+    if (path === "/terms" || path === "/terms.html") {
       return assetResponse(request, env, "/terms.html");
     }
 
-    if (path === "/privacy") {
+    if (path === "/privacy" || path === "/privacy.html") {
       return assetResponse(request, env, "/privacy.html");
     }
 
