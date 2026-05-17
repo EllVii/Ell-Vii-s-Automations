@@ -23,7 +23,7 @@
     table{width:100%;border-collapse:collapse;min-width:980px}th{text-align:left;background:#f8fafc;padding:13px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}td{padding:13px;border-top:1px solid var(--line);font-size:14px;vertical-align:top}.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:#fff;-webkit-overflow-scrolling:touch}
     .scroll-x{overflow-x:auto;-webkit-overflow-scrolling:touch}.calendar{display:grid;grid-template-columns:repeat(7,minmax(105px,1fr));min-width:760px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff}.day-name{background:#f1f5f9;text-align:center;font-size:11px;font-weight:950;color:var(--muted);text-transform:uppercase;padding:9px}.cell{min-height:96px;border-top:1px solid var(--line);border-right:1px solid var(--line);padding:8px}.today{box-shadow:inset 0 0 0 2px var(--brand);background:var(--brand-light)}.event{display:block;margin-top:5px;background:var(--brand);color:#fff;border-radius:7px;padding:4px 5px;font-size:10px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
     .phone-panel{background:#0f172a;color:white;border-radius:24px;padding:22px;box-shadow:0 20px 50px rgba(15,23,42,.18)}.phone-panel .muted{color:#cbd5e1}.phone-screen{background:#fff;color:var(--ink);border-radius:20px;padding:18px;margin-top:16px}.call-log{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;border-bottom:1px solid var(--line);padding:12px 0}.call-log:last-child{border-bottom:0}
-    .ai-toggle{position:fixed;right:22px;bottom:22px;width:62px;height:62px;border-radius:50%;background:var(--brand);color:white;border:4px solid white;box-shadow:0 12px 30px rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;font-weight:950;cursor:pointer;z-index:90}.ai-panel{position:fixed;right:22px;bottom:94px;width:420px;max-width:calc(100vw - 30px);height:600px;max-height:calc(100vh - 120px);display:none;flex-direction:column;background:white;border:1px solid var(--line);border-radius:18px;box-shadow:0 20px 50px rgba(0,0,0,.22);overflow:hidden;z-index:90}.ai-head{background:#0f172a;color:white;padding:16px;display:flex;justify-content:space-between}.ai-body{padding:14px;overflow:auto;background:#f1f5f9;flex:1}.ai-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px;margin-bottom:10px;cursor:pointer}.mark{font-weight:950;background:#fef9c3;color:#000;border-radius:3px;padding:0 2px}
+    .ai-toggle{position:fixed;right:22px;bottom:22px;min-width:132px;height:58px;padding:0 16px;border-radius:999px;background:var(--brand);color:white;border:4px solid white;box-shadow:0 12px 30px rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;font-weight:950;font-size:13px;cursor:pointer;z-index:90;text-align:center;line-height:1.1}.ai-panel{position:fixed;right:22px;bottom:94px;width:420px;max-width:calc(100vw - 30px);height:600px;max-height:calc(100vh - 120px);display:none;flex-direction:column;background:white;border:1px solid var(--line);border-radius:18px;box-shadow:0 20px 50px rgba(0,0,0,.22);overflow:hidden;z-index:90}.ai-head{background:#0f172a;color:white;padding:16px;display:flex;justify-content:space-between}.ai-body{padding:14px;overflow:auto;background:#f1f5f9;flex:1}.ai-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px;margin-bottom:10px;cursor:pointer}.mark{font-weight:950;background:#fef9c3;color:#000;border-radius:3px;padding:0 2px}
     @media(max-width:900px){.app{grid-template-columns:1fr}.mobile{display:flex}aside{position:fixed;left:0;top:0;bottom:0;width:280px;z-index:200;transform:translateX(-100%)}aside.open{transform:translateX(0)}.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:150}.overlay.open{display:block}main{padding:20px 14px}.grid.two,.grid.three,.form-row{grid-template-columns:1fr}.btn{width:100%}.inline{width:auto}.ai-panel{right:15px;bottom:88px}.top-actions{width:100%;display:grid;gap:8px}}
   </style>
 </head>
@@ -60,6 +60,15 @@
       </div>
 
       <section id="dashboard" class="section active">
+        <div class="card" style="margin-bottom:20px;border-color:#bfdbfe;background:linear-gradient(135deg,#ffffff,#eff6ff)">
+          <span class="badge brand">CRM Demo Guide</span>
+          <h3 style="margin:12px 0 8px">CRM Assistant helps explain this demo.</h3>
+          <p class="muted" style="margin:0">
+            If you are viewing this CRM from Facebook, LinkedIn, or a website demo,
+            use CRM Assistant to understand how leads, missed calls, follow-ups,
+            pipeline value, calendar tasks, and customer records work together.
+          </p>
+        </div>
         <div id="stats" class="grid stats"></div>
         <div class="grid two" style="margin-top:20px">
           <div class="card"><h3 style="margin-top:0">Urgent Actions</h3><div id="urgentList"></div></div>
@@ -221,8 +230,26 @@
     </main>
   </div>
 
-  <div class="ai-toggle" onclick="toggleAI()">AI</div>
-  <div class="ai-panel" id="aiPanel"><div class="ai-head"><strong>Speed-Read Search</strong><span onclick="toggleAI()" style="cursor:pointer;font-size:22px">&times;</span></div><div class="ai-body"><input id="aiInput" placeholder="Search #important, owner, source, phone path..." oninput="runSearch()"><div id="aiResults"></div></div></div>
+  <div class="ai-toggle" onclick="toggleAI()">CRM Assistant</div>
+  <div class="ai-panel" id="aiPanel">
+    <div class="ai-head">
+      <strong>CRM Assistant</strong>
+      <span onclick="toggleAI()" style="cursor:pointer;font-size:22px">&times;</span>
+    </div>
+    <div class="ai-body">
+      <div class="ai-card" style="cursor:default">
+        <strong>What does CRM Assistant do?</strong>
+        <p class="small" style="margin-bottom:0">
+          CRM Assistant helps you search this CRM demo, find urgent follow-ups,
+          review pipeline details, locate records by owner/source/status, and understand
+          how missed calls, leads, notes, and follow-up tasks are organized.
+          This assistant is for the CRM demo only.
+        </p>
+      </div>
+      <input id="aiInput" placeholder="Search #important, owner, source, status, phone path..." oninput="runSearch()">
+      <div id="aiResults"></div>
+    </div>
+  </div>
 
 <script>
 const MODES={
