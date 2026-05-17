@@ -324,7 +324,7 @@
   </script>
 
   <!-- Ell Vii's Website Chatbot -->
-  <div class="ev-chat-toggle" onclick="toggleEvChat()">Chat</div>
+  <div class="ev-chat-toggle" onclick="toggleEvChat()">Help Me Choose</div>
 
   <div class="ev-chat-panel" id="evChatPanel">
     <div class="ev-chat-header">
@@ -831,6 +831,126 @@
 })();
 </script>
 <!-- ELLVII_LEAD_GATE_OVERRIDE_END -->
+
+
+
+<!-- ELLVII_DAILY_CTA_START -->
+<style>
+  .ev-chat-toggle {
+    width: auto !important;
+    min-width: 118px !important;
+    height: 58px !important;
+    padding: 0 18px !important;
+    border-radius: 999px !important;
+    font-size: 13px !important;
+    line-height: 1.1 !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+  }
+
+  .ev-chat-toggle::before {
+    content: "Need help?";
+    position: absolute;
+    right: 6px;
+    bottom: 68px;
+    background: #0f172a;
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 7px 11px;
+    font-size: 11px;
+    font-weight: 900;
+    box-shadow: 0 10px 24px rgba(15,23,42,.22);
+    opacity: .95;
+  }
+
+  @media(max-width:900px){
+    .ev-chat-toggle {
+      min-width: 104px !important;
+      height: 54px !important;
+      padding: 0 14px !important;
+      font-size: 12px !important;
+    }
+  }
+</style>
+
+<script>
+(function(){
+  const assistantName = "Ell Vii’s Assistant";
+
+  const phrases = [
+    "Help Me Choose",
+    "Ask Ell Vii’s Assistant",
+    "Get Guided Help",
+    "Find the Right Setup",
+    "Need Help Choosing?",
+    "Start With Guidance"
+  ];
+
+  function todayKey(){
+    const now = new Date();
+    return now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0") + "-" + String(now.getDate()).padStart(2, "0");
+  }
+
+  function getVisitorKey(){
+    let key = localStorage.getItem("ellvii_daily_visitor_key");
+    if(!key){
+      key = String(Math.random()).slice(2) + "-" + Date.now();
+      localStorage.setItem("ellvii_daily_visitor_key", key);
+    }
+    return key;
+  }
+
+  function hashString(value){
+    let hash = 0;
+    for(let i = 0; i < value.length; i++){
+      hash = ((hash << 5) - hash) + value.charCodeAt(i);
+      hash |= 0;
+    }
+    return Math.abs(hash);
+  }
+
+  function getDailyPhrase(){
+    const saved = JSON.parse(localStorage.getItem("ellvii_daily_cta_v1") || "null");
+    const day = todayKey();
+
+    if(saved && saved.day === day && saved.phrase){
+      return saved.phrase;
+    }
+
+    const visitorKey = getVisitorKey();
+    const index = hashString(visitorKey + "-" + day) % phrases.length;
+    const phrase = phrases[index];
+
+    localStorage.setItem("ellvii_daily_cta_v1", JSON.stringify({
+      day,
+      phrase
+    }));
+
+    return phrase;
+  }
+
+  function applyDailyCTA(){
+    const phrase = getDailyPhrase();
+
+    document.querySelectorAll(".ev-chat-toggle").forEach(function(button){
+      button.textContent = phrase;
+      button.setAttribute("aria-label", phrase + " with " + assistantName);
+      button.setAttribute("title", phrase + " with " + assistantName);
+    });
+
+    document.querySelectorAll("[data-ellvii-daily-cta]").forEach(function(el){
+      el.textContent = phrase;
+    });
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", applyDailyCTA);
+  } else {
+    applyDailyCTA();
+  }
+})();
+</script>
+<!-- ELLVII_DAILY_CTA_END -->
 
 
 <!-- ELLVII_LEGAL_FOOTER_START -->
