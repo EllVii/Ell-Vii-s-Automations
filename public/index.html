@@ -19,8 +19,8 @@
     body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
     a{text-decoration:none;color:inherit}.wrap{max-width:1180px;margin:0 auto;padding:0 22px}
     nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
-    .nav{height:76px;display:flex;align-items:center;justify-content:space-between;gap:18px}
-    .logo{display:flex;align-items:center;gap:12px}.brand-logo-img{height:54px;width:auto;display:block}.mark{width:44px;height:44px;border-radius:16px;background:var(--dark);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:950;font-style:italic}
+    .nav{min-height:104px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+    .logo{display:flex;align-items:center;gap:12px}.brand-logo-img{height:82px;width:auto;max-width:min(420px,70vw);display:block}.mark{width:44px;height:44px;border-radius:16px;background:var(--dark);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:950;font-style:italic}
     .logo b{display:block;letter-spacing:-.04em;font-size:19px}.logo span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.26em;font-weight:950;color:var(--brand)}
     .links{display:flex;gap:18px;align-items:center;font-size:12px;text-transform:uppercase;letter-spacing:.12em;font-weight:950;color:#475569}
     .btn{display:inline-flex;align-items:center;justify-content:center;border-radius:16px;padding:13px 18px;font-weight:950;font-size:13px;border:1px solid var(--line);background:#fff;color:var(--ink)}
@@ -45,7 +45,7 @@
     .footer{background:#fff;border-top:1px solid var(--line);padding:42px 0;color:var(--muted);font-size:13px}
     input,textarea,select{width:100%;border:1px solid var(--line);border-radius:16px;padding:13px 14px;font:inherit;background:#fff}textarea{min-height:130px}
     form{display:grid;gap:12px}.table{overflow-x:auto}.pricing-table{width:100%;border-collapse:collapse;min-width:780px;background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden}.pricing-table th,.pricing-table td{padding:14px;border-bottom:1px solid var(--line);text-align:left}.pricing-table th{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);background:#f8fafc}
-    @media(max-width:900px){.hero-grid,.grid2,.grid3,.grid4{grid-template-columns:1fr}.links{display:none}.proof{grid-template-columns:1fr}.hero{padding-top:54px}.screen{margin-top:10px}.phone-card{padding-left:25px}.phone-card:before{position:static;margin-bottom:12px}}
+    @media(max-width:900px){.hero-grid,.grid2,.grid3,.grid4{grid-template-columns:1fr}.links{display:none}.nav{justify-content:center;min-height:118px}.logo{justify-content:center;width:100%}.brand-logo-img{height:96px;max-width:86vw}.proof{grid-template-columns:1fr}.hero{padding-top:54px}.screen{margin-top:10px}.phone-card{padding-left:25px}.phone-card:before{position:static;margin-bottom:12px}}
   
     /* Ell Vii's Website Chatbot */
     .ev-chat-toggle{
