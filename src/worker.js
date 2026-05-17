@@ -516,13 +516,13 @@ export default {
       });
     }
 
-    // Legal page routing — serve directly to avoid redirect loops
+    // Legal page routing — serve folder index files directly to avoid redirect loops
     if (path === "/terms" || path === "/terms.html") {
-      return assetResponse(request, env, "/terms.html");
+      return assetResponse(request, env, "/terms/index.html");
     }
 
     if (path === "/privacy" || path === "/privacy.html") {
-      return assetResponse(request, env, "/privacy.html");
+      return assetResponse(request, env, "/privacy/index.html");
     }
 
     if (env && env.ASSETS) {
