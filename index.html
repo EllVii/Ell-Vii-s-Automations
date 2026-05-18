@@ -887,10 +887,166 @@
       return;
     }
 
-    if(q.includes("website") || q.includes("site") || q.includes("seo")){
-      window.evQuickReply("website");
-      return;
-    }
+    if(
+  q.includes("what is seo") ||
+  q.includes("what does seo mean") ||
+  q.includes("explain seo") ||
+  q === "seo"
+){
+  evBotReply(
+    "SEO stands for Search Engine Optimization. In plain English, it means setting up your website so Google can understand what your business does, where you serve customers, and why your page should show up when people search. Basic SEO includes page titles, descriptions, headings, local keywords, fast loading, mobile-friendly layout, helpful content, and clear contact options."
+  );
+  return;
+}
+
+if(
+  q.includes("do i need seo") ||
+  q.includes("need seo") ||
+  q.includes("google clicks") ||
+  q.includes("show up on google") ||
+  q.includes("rank on google")
+){
+  evBotReply(
+    "Yes, most businesses need at least basic SEO. A good-looking website is not enough if Google and customers cannot clearly understand what you offer. For a local business, I focus on clear service pages, location-based wording, clean page titles, meta descriptions, mobile speed, and calls to action that help turn visitors into leads."
+  );
+  return;
+}
+
+if(
+  q.includes("how long") ||
+  q.includes("timeline") ||
+  q.includes("how fast") ||
+  q.includes("launch")
+){
+  evBotReply(
+    "Most simple business websites can usually be drafted quickly once I have the business name, services, contact info, logo or brand direction, photos if available, and the main goal of the site. Bigger builds with CRM, automation, booking, or phone workflows take longer because those need more setup and testing."
+  );
+  return;
+}
+
+if(
+  q.includes("domain") ||
+  q.includes("website name") ||
+  q.includes("url")
+){
+  evBotReply(
+    "A domain is your website address, like ellviisautomations.com. If you already own one, I can help connect it. If you do not, I can help you choose one that is easy to spell, easy to remember, and fits your business."
+  );
+  return;
+}
+
+if(
+  q.includes("hosting") ||
+  q.includes("host") ||
+  q.includes("cloudflare")
+){
+  evBotReply(
+    "Hosting is where your website lives online. I usually recommend simple, reliable hosting setups that keep the site fast, secure, and easier to maintain. For many static business websites, Cloudflare can be a strong option because it is fast, secure, and cost-friendly."
+  );
+  return;
+}
+
+if(
+  q.includes("mobile") ||
+  q.includes("phone friendly") ||
+  q.includes("responsive")
+){
+  evBotReply(
+    "Yes, the website should be mobile-friendly. A lot of customers will see your business from Facebook, Google, or a text link on their phone first. That means the site needs readable text, quick buttons, clean sections, and easy contact options without making people pinch and zoom."
+  );
+  return;
+}
+
+if(
+  q.includes("contact form") ||
+  q.includes("lead form") ||
+  q.includes("capture leads") ||
+  q.includes("form")
+){
+  evBotReply(
+    "A lead form collects customer information like name, phone, email, service needed, and message. The goal is simple: do not let a visitor leave without giving the business a way to follow up. Forms can also feed into a CRM or lead list."
+  );
+  return;
+}
+
+if(
+  q.includes("crm") ||
+  q.includes("customer list") ||
+  q.includes("pipeline")
+){
+  evBotReply(
+    "A CRM helps organize leads and customers. Instead of losing messages in texts, emails, DMs, or missed calls, a CRM keeps names, contact info, notes, status, and follow-up steps in one place."
+  );
+  return;
+}
+
+if(
+  q.includes("ai assistant") ||
+  q.includes("chatbot") ||
+  q.includes("bot")
+){
+  evBotReply(
+    "An AI assistant or chatbot helps visitors get answers without searching the entire website. It can explain services, collect lead details, answer common questions, and point people toward the right next step. For Ell Vii’s Automations, the assistant is built to support customer service and lead capture."
+  );
+  return;
+}
+
+if(
+  q.includes("website only") ||
+  q.includes("no monthly") ||
+  q.includes("one time") ||
+  q.includes("one-time")
+){
+  evBotReply(
+    "Yes, a website-only build is possible. That usually means the site is built and handed off without an ongoing monthly support plan. The tradeoff is that you would be responsible for updates, hosting, domain renewal, broken forms, security checks, and future edits unless you request support later."
+  );
+  return;
+}
+
+if(
+  q.includes("maintenance") ||
+  q.includes("upkeep") ||
+  q.includes("updates")
+){
+  evBotReply(
+    "Website upkeep means keeping the site working after launch. That can include small text or image updates, form checks, SSL checks, basic technical support, mobile checks, link checks, and making sure the site does not quietly break without anyone noticing."
+  );
+  return;
+}
+
+if(
+  q.includes("do i own") ||
+  q.includes("ownership") ||
+  q.includes("own the website")
+){
+  evBotReply(
+    "Ownership should be clear before the project starts. In general, your business content, logo, photos, and brand materials remain yours. The website setup, reusable code patterns, automation workflows, and technical framework may depend on the project agreement."
+  );
+  return;
+}
+
+if(
+  q.includes("photos") ||
+  q.includes("logo") ||
+  q.includes("content") ||
+  q.includes("pictures")
+){
+  evBotReply(
+    "Photos, logos, and content help make the website feel real and trustworthy. If you already have them, great. If not, I can help structure the site with strong copy, clean sections, and placeholders until better images or branding are ready."
+  );
+  return;
+}
+
+if(
+  q.includes("website") ||
+  q.includes("site")
+){
+  evBotReply(
+    "A good business website should quickly answer four questions: what do you do, who do you help, why should someone trust you, and how do they contact you. My focus is building sites that look professional and help turn visitors into leads."
+  );
+  return;
+}
+
 
     if(q.includes("faith") || q.includes("christian") || q.includes("values") || q.includes("serve all")){
       window.evQuickReply("values");
