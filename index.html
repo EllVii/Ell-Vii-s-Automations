@@ -869,25 +869,10 @@
       return;
     }
 
-    const q = text.toLowerCase();
-    const name = evLeadInfo.firstName || "there";
+const q = text.toLowerCase();
+const name = evLeadInfo.firstName || "there";
 
-    if(q.includes("price") || q.includes("cost") || q.includes("pricing") || q.includes("how much")){
-      window.evQuickReply("pricing");
-      return;
-    }
-
-    if(q.includes("crm") || q.includes("lead") || q.includes("follow") || q.includes("pipeline")){
-      window.evQuickReply("crm");
-      return;
-    }
-
-    if(q.includes("phone") || q.includes("call") || q.includes("text") || q.includes("twilio") || q.includes("missed")){
-      window.evQuickReply("phone");
-      return;
-    }
-
-    if(
+if(
   q.includes("what is seo") ||
   q.includes("what does seo mean") ||
   q.includes("explain seo") ||
@@ -919,7 +904,7 @@ if(
   q.includes("launch")
 ){
   evBotReply(
-    "Most simple business websites can usually be drafted quickly once I have the business name, services, contact info, logo or brand direction, photos if available, and the main goal of the site. Bigger builds with CRM, automation, booking, or phone workflows take longer because those need more setup and testing."
+    "Most professional business websites can usually be drafted quickly once I have the business name, services, contact info, logo or brand direction, photos if available, and the main goal of the site. Bigger builds with CRM, automation, booking, or phone workflows take longer because those need more setup and testing."
   );
   return;
 }
@@ -941,7 +926,7 @@ if(
   q.includes("cloudflare")
 ){
   evBotReply(
-    "Hosting is where your website lives online. I usually recommend simple, reliable hosting setups that keep the site fast, secure, and easier to maintain. For many static business websites, Cloudflare can be a strong option because it is fast, secure, and cost-friendly."
+    "Hosting is where your website lives online. I usually recommend simple, reliable hosting setups that keep the site fast, secure, and easier to maintain. For many small business websites, Cloudflare can be a strong option because it helps keep the site fast, secure, and cost-friendly."
   );
   return;
 }
@@ -1038,6 +1023,37 @@ if(
 }
 
 if(
+  q.includes("price") ||
+  q.includes("cost") ||
+  q.includes("pricing") ||
+  q.includes("how much")
+){
+  window.evQuickReply("pricing");
+  return;
+}
+
+if(
+  q.includes("phone") ||
+  q.includes("call") ||
+  q.includes("text") ||
+  q.includes("twilio") ||
+  q.includes("missed")
+){
+  window.evQuickReply("phone");
+  return;
+}
+
+if(
+  q.includes("faith") ||
+  q.includes("christian") ||
+  q.includes("values") ||
+  q.includes("serve all")
+){
+  window.evQuickReply("values");
+  return;
+}
+
+if(
   q.includes("website") ||
   q.includes("site")
 ){
@@ -1047,14 +1063,10 @@ if(
   return;
 }
 
+evBotReply(
+  "Good question, " + name + ". The safest starting point is usually a website prototype. Then we add hosting, CRM, phone workflows, SEO, or AI only if the business actually needs them."
+);
 
-    if(q.includes("faith") || q.includes("christian") || q.includes("values") || q.includes("serve all")){
-      window.evQuickReply("values");
-      return;
-    }
-
-    evBotReply("Good question, " + name + ". The safest starting point is usually a website prototype. Then we add hosting, CRM, phone workflows, SEO, or AI only if the business actually needs them.");
-  };
 
   document.addEventListener("DOMContentLoaded", function(){
     evShowSuggestions(false);
