@@ -609,20 +609,25 @@
           <p class="sub">Tell me what kind of business you’re working with and I’ll map the right website, hosting, SEO, phone, and CRM path.</p>
         </div>
         <div class="card">
-          <form name="prototype-request" method="POST" data-netlify="true">
-            <input type="hidden" name="form-name" value="prototype-request">
-            <input name="name" placeholder="Your name" required>
-            <input name="business" placeholder="Business name" required>
-            <input name="email" type="email" placeholder="Email" required>
-            <select name="interest">
-              <option>Website + Hosting</option>
-              <option>Website + CRM</option>
-              <option>CRM Demo</option>
-              <option>Twilio Phone Workflow</option>
-            </select>
-            <textarea name="message" placeholder="What does the business need help with?"></textarea>
-            <button class="btn primary" type="submit">Send Prototype Request</button>
-          </form>
+          <form id="prototypeForm">
+  <input name="name" placeholder="Your name" required>
+  <input name="business" placeholder="Business name" required>
+  <input name="email" type="email" placeholder="Email" required>
+
+  <select name="interest">
+    <option>Website + Hosting</option>
+    <option>Website + CRM</option>
+    <option>CRM Demo</option>
+    <option>Twilio Phone Workflow</option>
+  </select>
+
+  <textarea name="message" placeholder="What does the business need help with?"></textarea>
+
+  <button class="btn primary" type="submit">Send Prototype Request</button>
+
+  <p id="prototypeFormStatus" class="small" style="margin:0;"></p>
+</form>
+
         </div>
       </div>
     </section>
@@ -1295,5 +1300,52 @@
       <a class="ellvii-legal-button secondary" href="/privacy">View Privacy Policy</a>
     </nav>
   </footer>
+  <script>
+document.addEventListener("DOMContentLoaded", function(){
+  const form = document.getElementById("prototypeForm");
+  const status = document.getElementById("prototypeFormStatus");
+
+  if(!form) return;
+
+  form.addEventListener("submit", async function(event){
+    event.preventDefault();
+
+    status.textContent = "Sending request...";
+
+    const formData = new FormData(form);
+
+    const payload = {
+      name: formData.get("name"),
+      business: formData.get("business"),
+      email: formData.get("email"),
+      interest: formData.get("interest"),
+      message: formData.get("message"),
+      sourcePage: window.location.href
+    };
+
+    try{
+      const response = await fetch("/api/prototype-request", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+
+      if(!response.ok || !data.success){
+        throw new Error(data.error || "Request failed.");
+      }
+
+      status.textContent = "Request sent. We’ll follow up soon.";
+      form.reset();
+    }catch(error){
+      console.error(error);
+      status.textContent = "Something went wrong. Please email info@ellviisautomations.com directly.";
+    }
+  });
+});
+</script>
 </body>
 </html>
