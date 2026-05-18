@@ -212,6 +212,69 @@ async function handleChatStart(request, env) {
     contactType,
   });
 }
+async function handlePrototypeRequest(request, env) {
+  if (!env.CHAT_DB) {
+    return jsonResponse({ success: false, error: "CHAT_DB binding missing." }, 500);
+  }
+
+  const body = await parseJson(request);
+
+  if (!body) {
+    return jsonResponse({ success: false, error: "Invalid JSON body." }, 400);
+  }
+
+  const fullName = String(body.name || "").trim();
+  const firstName = cleanFirstName(fullName);
+  const business = String(body.business || "").trim();
+  const email = String(body.email || "").trim().toLowerCase();
+  const interest = String(body.interest || "").trim();
+  const message = String(body.message || "").trim();
+  const sourcePage = String(body.sourcePage || "").trim() || "prototype-request-form";
+  const userAgent = request.headers.get("User-Agent") || "";
+
+  if (!firstName || firstName.length < 2) {
+    return jsonResponse({ success: false, error: "Name is required." }, 400);
+  }
+
+  if (!isValidEmail(email)) {
+    return jsonResponse({ success: false, error: "Valid email is required." }, 400);
+  }
+
+  const id = crypto.randomUUID();
+  const timestamp = nowIso();
+
+  await env.CHAT_DB.prepare(
+    `INSERT INTO conversations
+      (id, first_name, contact, contact_type, source_page, user_agent, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+  )
+    .bind(id, firstName, email, "email", sourcePage, userAgent, timestamp, timestamp)
+    .run();
+
+  const details =
+    `Prototype request submitted.
+Name: ${fullName}
+Business: ${business || "Not provided"}
+Email: ${email}
+Interest: ${interest || "Not provided"}
+Message: ${message || "No message provided."}`;
+
+  try {
+    await env.CHAT_DB.prepare(
+      `INSERT INTO messages (conversation_id, role, message, created_at)
+       VALUES (?, ?, ?, ?)`
+    )
+      .bind(id, "system", details, timestamp)
+      .run();
+  } catch (error) {
+    console.warn("Prototype lead saved, but message logging failed:", error);
+  }
+
+  return jsonResponse({
+    success: true,
+    conversationId: id,
+  });
+}
 
 async function handleChatMessage(request, env) {
   if (!env.CHAT_DB) {
@@ -503,6 +566,10 @@ export default {
 
     if (path === "/api/chat/start" && request.method === "POST") {
       return handleChatStart(request, env);
+    }
+    
+    if (path === "/api/prototype-request" && request.method === "POST") {
+      return handlePrototypeRequest(request, env);
     }
 
     if (path === "/api/chat/message" && request.method === "POST") {
