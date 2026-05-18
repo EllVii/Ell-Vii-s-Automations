@@ -399,191 +399,132 @@
     }
   </script>
 
-  <!-- Ell Vii's Website Chatbot -->
-  <div class="ev-chat-toggle" onclick="toggleEvChat()">Help Me Choose</div>
+<script>
+  window.EV_CHAT_RESPONSE_KEY = "ev_chat_responses_v1";
+  window.EV_CHAT_LOG_KEY = "ev_chat_logs_v1";
+  window.EV_LEAD_KEY = "ev_lead_capture_v4";
 
-  <div class="ev-chat-panel" id="evChatPanel">
-    <div class="ev-chat-header">
-      <div>
-        <b>Ell Vii's Assistant</b>
-        <span>Website • CRM • Hosting • Phone Workflows</span>
-      </div>
-      <button onclick="toggleEvChat()" style="background:transparent;border:0;color:white;font-size:24px;cursor:pointer;">&times;</button>
+  window.EV_DEFAULT_CHAT_RESPONSES = {
+    website: {
+      label: "I need a website",
+      text: "A good business website should quickly answer four questions: what do you do, who do you help, why should someone trust you, and how do they contact you. My focus is building sites that look professional and help turn visitors into leads."
+    },
+    websiteOnly: {
+      label: "Website only, no monthly?",
+      text: "Yes, a website-only build is possible. That usually means the site is built and handed off without an ongoing monthly support plan. The tradeoff is that you would be responsible for updates, hosting, domain renewal, broken forms, security checks, and future edits unless you request support later."
+    },
+    upkeep: {
+      label: "What does upkeep include?",
+      text: "Website upkeep means keeping the site working after launch. That can include small text or image updates, form checks, SSL checks, basic technical support, mobile checks, link checks, and making sure the site does not quietly break without anyone noticing."
+    },
+    crm: {
+      label: "I need a CRM",
+      text: "A CRM helps organize leads and customers. Instead of losing messages in texts, emails, DMs, or missed calls, a CRM keeps names, contact info, notes, status, and follow-up steps in one place."
+    },
+    phone: {
+      label: "I miss calls/leads",
+      text: "For missed calls and lead protection, we use Twilio-powered phone workflows. Options include full number porting, low-risk call forwarding, or hosted SMS when eligible. The goal is simple: calls and texts should create records instead of disappearing."
+    },
+    pricing: {
+      label: "Show pricing",
+      text: "Website Prototype Launch starts at $375 one-time. Stay Live starts at $197/mo. Growth Partner starts at $397/mo. CRM add-ons start at +$97/mo. Phone workflow add-ons start at +$79/mo with included usage allowances."
+    },
+    values: {
+      label: "Are you faith-based?",
+      text: "Yes. Ell Vii’s Automations is Christian-led, faith-rooted, service-driven, and open to serving businesses of all backgrounds. We do not label people or businesses as good or bad. We serve with humility, grace, honesty, and excellence."
+    },
+    seo: {
+      label: "What is SEO?",
+      text: "SEO stands for Search Engine Optimization. In plain English, it means setting up your website so Google can understand what your business does, where you serve customers, and why your page should show up when people search. Basic SEO includes page titles, descriptions, headings, local keywords, fast loading, mobile-friendly layout, helpful content, and clear contact options."
+    }
+  };
+
+  function evGetResponses(){
+    try {
+      return JSON.parse(localStorage.getItem(window.EV_CHAT_RESPONSE_KEY)) || window.EV_DEFAULT_CHAT_RESPONSES;
+    } catch(error) {
+      localStorage.removeItem(window.EV_CHAT_RESPONSE_KEY);
+      return window.EV_DEFAULT_CHAT_RESPONSES;
+    }
+  }
+
+  function evLogMessage(text, role){
+    try {
+      const logs = JSON.parse(localStorage.getItem(window.EV_CHAT_LOG_KEY)) || [];
+      logs.push({ text, role, time: new Date().toISOString() });
+      localStorage.setItem(window.EV_CHAT_LOG_KEY, JSON.stringify(logs.slice(-200)));
+    } catch(error) {
+      console.warn("Could not log chat message:", error);
+    }
+  }
+
+  function evRespondFromLibrary(topic){
+    const data = evGetResponses();
+    const response = data[topic] || window.EV_DEFAULT_CHAT_RESPONSES[topic];
+
+    if(response){
+      evBotReply(response.text);
+    }
+  }
+</script>
+
+<!-- Ell Vii's Website Chatbot -->
+<div class="ev-chat-toggle" onclick="toggleEvChat()">Help Me Choose</div>
+
+<div class="ev-chat-panel" id="evChatPanel">
+  <div class="ev-chat-header">
+    <div>
+      <b>Ell Vii's Assistant</b>
+      <span>Website • CRM • Hosting • Phone Workflows</span>
     </div>
-
-    <div class="ev-chat-body" id="evChatBody">
-      <div class="ev-msg bot">
-        Hi — I can help you figure out whether you need a website, CRM, hosting, upkeep, or a Twilio-powered phone workflow.
-      </div>
-
-      <div class="ev-suggestions" id="evSuggestions">
-        <button onclick="evQuickReply('website')">I need a website</button>
-        <button onclick="evQuickReply('websiteOnly')">Website only, no monthly?</button>
-        <button onclick="evQuickReply('upkeep')">What does upkeep include?</button>
-        <button onclick="evQuickReply('crm')">I need a CRM</button>
-        <button onclick="evQuickReply('phone')">I miss calls/leads</button>
-        <button onclick="evQuickReply('pricing')">Show pricing</button>
-        <button onclick="evQuickReply('values')">Are you faith-based?</button>
-      </div>
-    </div>
-
-    <div class="ev-chat-input">
-      <input id="evChatInput" placeholder="Ask about websites, upkeep, CRM, hosting, or phones..." onkeydown="if(event.key==='Enter') evSendChat();" />
-      <button onclick="evSendChat()">Send</button>
-    </div>
+    <button onclick="toggleEvChat()" style="background:transparent;border:0;color:white;font-size:24px;cursor:pointer;">&times;</button>
   </div>
 
-  <script>
-    function toggleEvChat(){
-      const panel = document.getElementById('evChatPanel');
-      panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex';
-    }
+  <div class="ev-chat-body" id="evChatBody"></div>
 
-    function evAddMessage(text, who){
-      const body = document.getElementById('evChatBody');
-      const div = document.createElement('div');
-      div.className = 'ev-msg ' + who;
-      div.textContent = text;
-      body.appendChild(div);
-      body.scrollTop = body.scrollHeight;
-      if(typeof evLogMessage === 'function') evLogMessage(text, who);
-    }
+  <div class="ev-suggestions" id="evSuggestions" style="display:none;padding:0 14px 10px;background:#f8fafc;">
+    <button onclick="evQuickReply('website')">I need a website</button>
+    <button onclick="evQuickReply('seo')">What is SEO?</button>
+    <button onclick="evQuickReply('websiteOnly')">Website only, no monthly?</button>
+    <button onclick="evQuickReply('upkeep')">What does upkeep include?</button>
+    <button onclick="evQuickReply('crm')">I need a CRM</button>
+    <button onclick="evQuickReply('phone')">I miss calls/leads</button>
+    <button onclick="evQuickReply('pricing')">Show pricing</button>
+    <button onclick="evQuickReply('values')">Are you faith-based?</button>
+  </div>
 
-    function evBotReply(text){
-      setTimeout(function(){ evAddMessage(text, 'bot'); }, 250);
-    }
+  <div class="ev-chat-input">
+    <input id="evChatInput" placeholder="Ask about websites, CRM, SEO, hosting, or phones..." onkeydown="if(event.key==='Enter') evSendChat();" />
+    <button onclick="evSendChat()">Send</button>
+  </div>
 
-    function evQuickReply(topic){
-      const labels = {
-        website: 'I need a website',
-        websiteOnly: 'Can I just get a website with no monthly plan?',
-        upkeep: 'What does website upkeep include?',
-        crm: 'I need a CRM',
-        phone: 'I miss calls/leads',
-        pricing: 'Show pricing',
-        values: 'Are you faith-based?'
-      };
-
-      evAddMessage(labels[topic] || topic, 'user');
-
-      if(topic === 'website'){
-        evRespondFromLibrary('website');
-        document.getElementById('services')?.scrollIntoView({behavior:'smooth'});
-      }
-
-      if(topic === 'websiteOnly'){
-        evRespondFromLibrary('websiteOnly');
-        document.getElementById('pricing')?.scrollIntoView({behavior:'smooth'});
-      }
-
-      if(topic === 'upkeep'){
-        evRespondFromLibrary('upkeep');
-        document.getElementById('pricing')?.scrollIntoView({behavior:'smooth'});
-      }
-
-      if(topic === 'crm'){
-        evRespondFromLibrary('crm');
-        document.getElementById('crm')?.scrollIntoView({behavior:'smooth'});
-      }
-
-      if(topic === 'phone'){
-        evRespondFromLibrary('phone');
-        document.getElementById('phones')?.scrollIntoView({behavior:'smooth'});
-      }
-
-      if(topic === 'pricing'){
-        evRespondFromLibrary('pricing');
-        document.getElementById('pricing')?.scrollIntoView({behavior:'smooth'});
-      }
-
-      if(topic === 'values'){
-        evRespondFromLibrary('values');
-        document.getElementById('values')?.scrollIntoView({behavior:'smooth'});
-      }
-    }
-
-    function evSendChat(){
-      const input = document.getElementById('evChatInput');
-      const text = input.value.trim();
-      if(!text) return;
-
-      input.value = '';
-      evAddMessage(text, 'user');
-
-      const q = text.toLowerCase();
-
-      if(
-        q.includes('no monthly') ||
-        q.includes('without monthly') ||
-        q.includes('just a website') ||
-        q.includes('only website') ||
-        q.includes('website only') ||
-        q.includes('one time') ||
-        q.includes('one-time') ||
-        q.includes('handoff') ||
-        q.includes('hand off')
-      ){
-        evBotReply('Yes. You can choose a website-only build with no monthly plan. After launch, the site is handed off and you are responsible for hosting, domain renewal, updates, edits, security, backups, forms, and broken third-party tools unless you choose a support plan. If you need help later, support can be billed hourly or moved into a monthly plan.');
-        return;
-      }
-
-      if(
-        q.includes('upkeep') ||
-        q.includes('maintenance') ||
-        q.includes('support') ||
-        q.includes('hosting') ||
-        q.includes('ssl') ||
-        q.includes('updates') ||
-        q.includes('edit')
-      ){
-        evBotReply('Stay Live is the upkeep plan at $197/mo. It can include hosting support, SSL checks, basic updates, monthly site checks, form checks, small text/image edits, and basic technical support. Larger work is quoted separately.');
-        return;
-      }
-
-      if(q.includes('price') || q.includes('cost') || q.includes('pricing') || q.includes('how much')){
-        evQuickReply('pricing');
-        return;
-      }
-
-      if(q.includes('crm') || q.includes('lead') || q.includes('follow') || q.includes('pipeline')){
-        evQuickReply('crm');
-        return;
-      }
-
-      if(q.includes('phone') || q.includes('call') || q.includes('text') || q.includes('twilio') || q.includes('missed')){
-        evQuickReply('phone');
-        return;
-      }
-
-      if(q.includes('website') || q.includes('site') || q.includes('seo')){
-        evQuickReply('website');
-        return;
-      }
-
-      if(q.includes('faith') || q.includes('christian') || q.includes('values') || q.includes('serve all')){
-        evQuickReply('values');
-        return;
-      }
-
-      evBotReply('Good question. The safest starting point is usually a website prototype. Then we add hosting, CRM, phone workflows, SEO, or AI only if the business actually needs them.');
-    }
-  </script>
-
-
-
+  <div style="padding:0 12px 12px;background:white;font-size:11px;color:#64748b;text-align:center;">
+    By chatting, you agree to be contacted about your request.
+    <div class="ellvii-chat-legal-buttons">
+      <a href="/terms" target="_blank" rel="noopener">Terms</a>
+      <a href="/privacy" target="_blank" rel="noopener">Privacy</a>
+    </div>
+  </div>
+</div>
 
 <!-- ELLVII_LEAD_GATE_OVERRIDE_START -->
 <script>
 (function(){
-  window.EV_LEAD_KEY = "ev_lead_capture_v1";
-
   let evChatInitialized = false;
   let evLeadStep = "firstName";
+
   let evLeadInfo = {
     firstName: "",
     contact: "",
     contactType: "",
     conversationId: ""
+  };
+
+  let evPendingContact = {
+    raw: "",
+    normalized: "",
+    display: "",
+    type: ""
   };
 
   function evBody(){
@@ -611,6 +552,8 @@
       input.placeholder = "Enter your first name...";
     } else if(evLeadStep === "contact"){
       input.placeholder = "Enter email or phone number...";
+    } else if(evLeadStep === "confirmContact"){
+      input.placeholder = "Type yes to confirm, or enter it again...";
     } else {
       input.placeholder = "Ask about websites, CRM, SEO, hosting, or phones...";
     }
@@ -621,13 +564,14 @@
     if(body) body.innerHTML = "";
   }
 
-  function evAddMessage(text, who, saveToServer){
+  function evAddMessage(text, who, saveToServer = false){
     const body = evBody();
     if(!body) return;
 
     const div = document.createElement("div");
     div.className = "ev-msg " + who;
     div.textContent = text;
+
     body.appendChild(div);
     body.scrollTop = body.scrollHeight;
 
@@ -653,18 +597,90 @@
       .split(" ")[0];
   }
 
+  function evNormalizeEmail(value){
+    return String(value || "").trim().toLowerCase();
+  }
+
+  function evPhoneDigits(value){
+    return String(value || "").replace(/\D/g, "");
+  }
+
+  function evFormatPhone(digits){
+    if(digits.length !== 10) return digits;
+    return "(" + digits.slice(0,3) + ") " + digits.slice(3,6) + "-" + digits.slice(6);
+  }
+
   function evIsValidEmail(value){
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || "").trim());
+    const email = evNormalizeEmail(value);
+    const atIndex = email.indexOf("@");
+
+    if(atIndex <= 0) return false;
+
+    const domain = email.slice(atIndex + 1);
+    if(!domain || !domain.includes(".")) return false;
+
+    return /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(email);
   }
 
   function evIsValidPhone(value){
-    return /^[0-9+\-().\s]{7,}$/.test(String(value || "").trim());
+    return evPhoneDigits(value).length === 10;
   }
 
   function evDetectContactType(value){
     if(evIsValidEmail(value)) return "email";
     if(evIsValidPhone(value)) return "phone";
     return "unknown";
+  }
+
+  function evGetContactCandidate(value){
+    const raw = String(value || "").trim();
+
+    if(evIsValidPhone(raw)){
+      const digits = evPhoneDigits(raw);
+
+      return {
+        raw,
+        normalized: digits,
+        display: evFormatPhone(digits),
+        type: "phone"
+      };
+    }
+
+    if(evIsValidEmail(raw)){
+      const email = evNormalizeEmail(raw);
+
+      return {
+        raw,
+        normalized: email,
+        display: email,
+        type: "email"
+      };
+    }
+
+    return null;
+  }
+
+  function evIsYes(value){
+    return [
+      "yes",
+      "y",
+      "yeah",
+      "yep",
+      "correct",
+      "that is correct",
+      "that's correct"
+    ].includes(String(value || "").trim().toLowerCase());
+  }
+
+  function evIsNo(value){
+    return [
+      "no",
+      "n",
+      "nope",
+      "wrong",
+      "change",
+      "edit"
+    ].includes(String(value || "").trim().toLowerCase());
   }
 
   function evGetSavedLead(){
@@ -698,6 +714,7 @@
 
     evLeadInfo.conversationId = data.conversationId;
     localStorage.setItem(window.EV_LEAD_KEY, JSON.stringify(evLeadInfo));
+
     return data;
   }
 
@@ -710,13 +727,44 @@
         },
         body: JSON.stringify({
           conversationId: evLeadInfo.conversationId,
-          role: role,
-          message: message
+          role,
+          message
         })
       });
     }catch(error){
       console.warn("Could not save chat message:", error);
     }
+  }
+
+  function evAskContactConfirmation(candidate){
+    evPendingContact = candidate;
+    evLeadStep = "confirmContact";
+    evSetPlaceholder();
+
+    if(candidate.type === "phone"){
+      evBotReply("Just to confirm, is this the best phone number to reach you: " + candidate.display + "? Reply yes to confirm, or enter the correct number.");
+    } else {
+      evBotReply("Just to confirm, is this your email address: " + candidate.display + "? Reply yes to confirm, or enter the correct email.");
+    }
+  }
+
+  async function evConfirmAndStart(){
+    evLeadInfo.contact = evPendingContact.normalized;
+    evLeadInfo.contactType = evPendingContact.type;
+
+    try{
+      await evStartConversationOnServer();
+    }catch(error){
+      console.error(error);
+      evBotReply("I’m having trouble saving your contact details right now. Please contact us directly at info@ellviisautomations.com.");
+      return;
+    }
+
+    evLeadStep = "ready";
+    evSetPlaceholder();
+    evShowSuggestions(true);
+
+    evBotReply("Perfect, " + evLeadInfo.firstName + ". I have your contact details. How can I help you today?");
   }
 
   function evStartChat(){
@@ -740,10 +788,22 @@
       conversationId: ""
     };
 
+    evPendingContact = {
+      raw: "",
+      normalized: "",
+      display: "",
+      type: ""
+    };
+
     evLeadStep = "firstName";
     evSetPlaceholder();
     evShowSuggestions(false);
-    evAddMessage("Hey, welcome to Ell Vii’s Automations — pronounced “L V’s Automations.” I’m Ell Vii’s Assistant. I can help you figure out whether you need a website, CRM, hosting, SEO, or phone workflow. First, what’s your first name?", "bot", false);
+
+    evAddMessage(
+      "Hey, welcome to Ell Vii’s Automations — pronounced “L V’s Automations.” I’m Ell Vii’s Assistant. I can help you figure out whether you need a website, CRM, hosting, SEO, or phone workflow. First, what’s your first name?",
+      "bot",
+      false
+    );
   }
 
   window.toggleEvChat = function(){
@@ -755,6 +815,7 @@
     if(panel.style.display === "flex" && !evChatInitialized){
       evChatInitialized = true;
       evStartChat();
+
       setTimeout(function(){
         evInput()?.focus();
       }, 150);
@@ -770,6 +831,7 @@
 
     const labels = {
       website: "I need a website",
+      seo: "What is SEO?",
       websiteOnly: "Can I just get a website with no monthly plan?",
       upkeep: "What does website upkeep include?",
       crm: "I need a CRM",
@@ -783,36 +845,49 @@
     if(topic === "website"){
       evRespondFromLibrary("website");
       document.getElementById("services")?.scrollIntoView({behavior:"smooth"});
+      return;
+    }
+
+    if(topic === "seo"){
+      evRespondFromLibrary("seo");
+      document.getElementById("services")?.scrollIntoView({behavior:"smooth"});
+      return;
     }
 
     if(topic === "websiteOnly"){
       evRespondFromLibrary("websiteOnly");
       document.getElementById("pricing")?.scrollIntoView({behavior:"smooth"});
+      return;
     }
 
     if(topic === "upkeep"){
       evRespondFromLibrary("upkeep");
       document.getElementById("pricing")?.scrollIntoView({behavior:"smooth"});
+      return;
     }
 
     if(topic === "crm"){
       evRespondFromLibrary("crm");
       document.getElementById("crm")?.scrollIntoView({behavior:"smooth"});
+      return;
     }
 
     if(topic === "phone"){
       evRespondFromLibrary("phone");
       document.getElementById("phones")?.scrollIntoView({behavior:"smooth"});
+      return;
     }
 
     if(topic === "pricing"){
       evRespondFromLibrary("pricing");
       document.getElementById("pricing")?.scrollIntoView({behavior:"smooth"});
+      return;
     }
 
     if(topic === "values"){
       evRespondFromLibrary("values");
       document.getElementById("values")?.scrollIntoView({behavior:"smooth"});
+      return;
     }
   };
 
@@ -845,228 +920,233 @@
     }
 
     if(evLeadStep === "contact"){
-      if(!evIsValidEmail(text) && !evIsValidPhone(text)){
-        evBotReply((evLeadInfo.firstName || "Thanks") + ", I’ll need either a valid email address or phone number before we continue.");
+      const candidate = evGetContactCandidate(text);
+
+      if(!candidate){
+        evBotReply((evLeadInfo.firstName || "Thanks") + ", I’ll need either a valid email address or a phone number with exactly 10 digits before we continue.");
         return;
       }
 
-      evLeadInfo.contact = text;
-      evLeadInfo.contactType = evDetectContactType(text);
-
-      try{
-        await evStartConversationOnServer();
-      }catch(error){
-        console.error(error);
-        evBotReply("I’m having trouble saving your contact details right now. Please contact us directly at info@ellviisautomations.com.");
-        return;
-      }
-
-      evLeadStep = "ready";
-      evSetPlaceholder();
-      evShowSuggestions(true);
-
-      evBotReply("Perfect, " + evLeadInfo.firstName + ". I have your contact details. How can I help you today?");
+      evAskContactConfirmation(candidate);
       return;
     }
 
-const q = text.toLowerCase();
-const name = evLeadInfo.firstName || "there";
+    if(evLeadStep === "confirmContact"){
+      if(evIsYes(text)){
+        await evConfirmAndStart();
+        return;
+      }
 
-if(
-  q.includes("what is seo") ||
-  q.includes("what does seo mean") ||
-  q.includes("explain seo") ||
-  q === "seo"
-){
-  evBotReply(
-    "SEO stands for Search Engine Optimization. In plain English, it means setting up your website so Google can understand what your business does, where you serve customers, and why your page should show up when people search. Basic SEO includes page titles, descriptions, headings, local keywords, fast loading, mobile-friendly layout, helpful content, and clear contact options."
-  );
-  return;
-}
+      if(evIsNo(text)){
+        evLeadStep = "contact";
+        evSetPlaceholder();
+        evBotReply("No problem. Please enter the correct email address or 10-digit phone number.");
+        return;
+      }
 
-if(
-  q.includes("do i need seo") ||
-  q.includes("need seo") ||
-  q.includes("google clicks") ||
-  q.includes("show up on google") ||
-  q.includes("rank on google")
-){
-  evBotReply(
-    "Yes, most businesses need at least basic SEO. A good-looking website is not enough if Google and customers cannot clearly understand what you offer. For a local business, I focus on clear service pages, location-based wording, clean page titles, meta descriptions, mobile speed, and calls to action that help turn visitors into leads."
-  );
-  return;
-}
+      const candidate = evGetContactCandidate(text);
 
-if(
-  q.includes("how long") ||
-  q.includes("timeline") ||
-  q.includes("how fast") ||
-  q.includes("launch")
-){
-  evBotReply(
-    "Most professional business websites can usually be drafted quickly once I have the business name, services, contact info, logo or brand direction, photos if available, and the main goal of the site. Bigger builds with CRM, automation, booking, or phone workflows take longer because those need more setup and testing."
-  );
-  return;
-}
+      if(candidate){
+        evAskContactConfirmation(candidate);
+        return;
+      }
 
-if(
-  q.includes("domain") ||
-  q.includes("website name") ||
-  q.includes("url")
-){
-  evBotReply(
-    "A domain is your website address, like ellviisautomations.com. If you already own one, I can help connect it. If you do not, I can help you choose one that is easy to spell, easy to remember, and fits your business."
-  );
-  return;
-}
+      evBotReply("Please reply yes to confirm, or enter the correct email address or 10-digit phone number.");
+      return;
+    }
 
-if(
-  q.includes("hosting") ||
-  q.includes("host") ||
-  q.includes("cloudflare")
-){
-  evBotReply(
-    "Hosting is where your website lives online. I usually recommend simple, reliable hosting setups that keep the site fast, secure, and easier to maintain. For many small business websites, Cloudflare can be a strong option because it helps keep the site fast, secure, and cost-friendly."
-  );
-  return;
-}
+    const q = text.toLowerCase();
+    const name = evLeadInfo.firstName || "there";
 
-if(
-  q.includes("mobile") ||
-  q.includes("phone friendly") ||
-  q.includes("responsive")
-){
-  evBotReply(
-    "Yes, the website should be mobile-friendly. A lot of customers will see your business from Facebook, Google, or a text link on their phone first. That means the site needs readable text, quick buttons, clean sections, and easy contact options without making people pinch and zoom."
-  );
-  return;
-}
+    if(
+      q.includes("what is seo") ||
+      q.includes("what does seo mean") ||
+      q.includes("explain seo") ||
+      q === "seo" ||
+      q.includes("seo services") ||
+      q.includes("seo foundation")
+    ){
+      evRespondFromLibrary("seo");
+      return;
+    }
 
-if(
-  q.includes("contact form") ||
-  q.includes("lead form") ||
-  q.includes("capture leads") ||
-  q.includes("form")
-){
-  evBotReply(
-    "A lead form collects customer information like name, phone, email, service needed, and message. The goal is simple: do not let a visitor leave without giving the business a way to follow up. Forms can also feed into a CRM or lead list."
-  );
-  return;
-}
+    if(
+      q.includes("do i need seo") ||
+      q.includes("need seo") ||
+      q.includes("google clicks") ||
+      q.includes("show up on google") ||
+      q.includes("rank on google") ||
+      q.includes("found on google")
+    ){
+      evBotReply(
+        "Yes, most businesses need at least basic SEO. A good-looking website is not enough if Google and customers cannot clearly understand what you offer. For a local business, I focus on clear service pages, location-based wording, clean page titles, meta descriptions, mobile speed, and calls to action that help turn visitors into leads."
+      );
+      return;
+    }
 
-if(
-  q.includes("crm") ||
-  q.includes("customer list") ||
-  q.includes("pipeline")
-){
-  evBotReply(
-    "A CRM helps organize leads and customers. Instead of losing messages in texts, emails, DMs, or missed calls, a CRM keeps names, contact info, notes, status, and follow-up steps in one place."
-  );
-  return;
-}
+    if(
+      q.includes("how long") ||
+      q.includes("timeline") ||
+      q.includes("how fast") ||
+      q.includes("launch")
+    ){
+      evBotReply(
+        "Most professional business websites can usually be drafted quickly once I have the business name, services, contact info, logo or brand direction, photos if available, and the main goal of the site. Bigger builds with CRM, automation, booking, or phone workflows take longer because those need more setup and testing."
+      );
+      return;
+    }
 
-if(
-  q.includes("ai assistant") ||
-  q.includes("chatbot") ||
-  q.includes("bot")
-){
-  evBotReply(
-    "An AI assistant or chatbot helps visitors get answers without searching the entire website. It can explain services, collect lead details, answer common questions, and point people toward the right next step. For Ell Vii’s Automations, the assistant is built to support customer service and lead capture."
-  );
-  return;
-}
+    if(
+      q.includes("domain") ||
+      q.includes("website name") ||
+      q.includes("url")
+    ){
+      evBotReply(
+        "A domain is your website address, like ellviisautomations.com. If you already own one, I can help connect it. If you do not, I can help you choose one that is easy to spell, easy to remember, and fits your business."
+      );
+      return;
+    }
 
-if(
-  q.includes("website only") ||
-  q.includes("no monthly") ||
-  q.includes("one time") ||
-  q.includes("one-time")
-){
-  evBotReply(
-    "Yes, a website-only build is possible. That usually means the site is built and handed off without an ongoing monthly support plan. The tradeoff is that you would be responsible for updates, hosting, domain renewal, broken forms, security checks, and future edits unless you request support later."
-  );
-  return;
-}
+    if(
+      q.includes("hosting") ||
+      q.includes("host") ||
+      q.includes("cloudflare")
+    ){
+      evBotReply(
+        "Hosting is where your website lives online. I usually recommend simple, reliable hosting setups that keep the site fast, secure, and easier to maintain. For many small business websites, Cloudflare can be a strong option because it helps keep the site fast, secure, and cost-friendly."
+      );
+      return;
+    }
 
-if(
-  q.includes("maintenance") ||
-  q.includes("upkeep") ||
-  q.includes("updates")
-){
-  evBotReply(
-    "Website upkeep means keeping the site working after launch. That can include small text or image updates, form checks, SSL checks, basic technical support, mobile checks, link checks, and making sure the site does not quietly break without anyone noticing."
-  );
-  return;
-}
+    if(
+      q.includes("mobile") ||
+      q.includes("phone friendly") ||
+      q.includes("responsive")
+    ){
+      evBotReply(
+        "Yes, the website should be mobile-friendly. A lot of customers will see your business from Facebook, Google, or a text link on their phone first. That means the site needs readable text, quick buttons, clean sections, and easy contact options without making people pinch and zoom."
+      );
+      return;
+    }
 
-if(
-  q.includes("do i own") ||
-  q.includes("ownership") ||
-  q.includes("own the website")
-){
-  evBotReply(
-    "Ownership should be clear before the project starts. In general, your business content, logo, photos, and brand materials remain yours. The website setup, reusable code patterns, automation workflows, and technical framework may depend on the project agreement."
-  );
-  return;
-}
+    if(
+      q.includes("contact form") ||
+      q.includes("lead form") ||
+      q.includes("capture leads") ||
+      q.includes("form")
+    ){
+      evBotReply(
+        "A lead form collects customer information like name, phone, email, service needed, and message. The goal is simple: do not let a visitor leave without giving the business a way to follow up. Forms can also feed into a CRM or lead list."
+      );
+      return;
+    }
 
-if(
-  q.includes("photos") ||
-  q.includes("logo") ||
-  q.includes("content") ||
-  q.includes("pictures")
-){
-  evBotReply(
-    "Photos, logos, and content help make the website feel real and trustworthy. If you already have them, great. If not, I can help structure the site with strong copy, clean sections, and placeholders until better images or branding are ready."
-  );
-  return;
-}
+    if(
+      q.includes("crm") ||
+      q.includes("customer list") ||
+      q.includes("pipeline")
+    ){
+      evRespondFromLibrary("crm");
+      return;
+    }
 
-if(
-  q.includes("price") ||
-  q.includes("cost") ||
-  q.includes("pricing") ||
-  q.includes("how much")
-){
-  window.evQuickReply("pricing");
-  return;
-}
+    if(
+      q.includes("ai assistant") ||
+      q.includes("chatbot") ||
+      q.includes("bot") ||
+      q.includes("assistant")
+    ){
+      evBotReply(
+        "An AI assistant or chatbot helps visitors get answers without searching the entire website. It can explain services, collect lead details, answer common questions, and point people toward the right next step. For Ell Vii’s Automations, the assistant is built to support customer service and lead capture."
+      );
+      return;
+    }
 
-if(
-  q.includes("phone") ||
-  q.includes("call") ||
-  q.includes("text") ||
-  q.includes("twilio") ||
-  q.includes("missed")
-){
-  window.evQuickReply("phone");
-  return;
-}
+    if(
+      q.includes("website only") ||
+      q.includes("no monthly") ||
+      q.includes("one time") ||
+      q.includes("one-time")
+    ){
+      evRespondFromLibrary("websiteOnly");
+      return;
+    }
 
-if(
-  q.includes("faith") ||
-  q.includes("christian") ||
-  q.includes("values") ||
-  q.includes("serve all")
-){
-  window.evQuickReply("values");
-  return;
-}
+    if(
+      q.includes("maintenance") ||
+      q.includes("upkeep") ||
+      q.includes("updates")
+    ){
+      evRespondFromLibrary("upkeep");
+      return;
+    }
 
-if(
-  q.includes("website") ||
-  q.includes("site")
-){
-  evBotReply(
-    "A good business website should quickly answer four questions: what do you do, who do you help, why should someone trust you, and how do they contact you. My focus is building sites that look professional and help turn visitors into leads."
-  );
-  return;
-}
+    if(
+      q.includes("do i own") ||
+      q.includes("ownership") ||
+      q.includes("own the website")
+    ){
+      evBotReply(
+        "Ownership should be clear before the project starts. In general, your business content, logo, photos, and brand materials remain yours. The website setup, reusable code patterns, automation workflows, and technical framework may depend on the project agreement."
+      );
+      return;
+    }
 
-evBotReply(
-  "Good question, " + name + ". The safest starting point is usually a website prototype. Then we add hosting, CRM, phone workflows, SEO, or AI only if the business actually needs them."
-);
+    if(
+      q.includes("photos") ||
+      q.includes("logo") ||
+      q.includes("content") ||
+      q.includes("pictures")
+    ){
+      evBotReply(
+        "Photos, logos, and content help make the website feel real and trustworthy. If you already have them, great. If not, I can help structure the site with strong copy, clean sections, and placeholders until better images or branding are ready."
+      );
+      return;
+    }
 
+    if(
+      q.includes("price") ||
+      q.includes("cost") ||
+      q.includes("pricing") ||
+      q.includes("how much")
+    ){
+      evRespondFromLibrary("pricing");
+      return;
+    }
+
+    if(
+      q.includes("phone") ||
+      q.includes("call") ||
+      q.includes("text") ||
+      q.includes("twilio") ||
+      q.includes("missed")
+    ){
+      evRespondFromLibrary("phone");
+      return;
+    }
+
+    if(
+      q.includes("faith") ||
+      q.includes("christian") ||
+      q.includes("values") ||
+      q.includes("serve all")
+    ){
+      evRespondFromLibrary("values");
+      return;
+    }
+
+    if(
+      q.includes("website") ||
+      q.includes("site")
+    ){
+      evRespondFromLibrary("website");
+      return;
+    }
+
+    evBotReply(
+      "Good question, " + name + ". The safest starting point is usually a website prototype. Then we add hosting, CRM, phone workflows, SEO, or AI only if the business actually needs them."
+    );
+  };
 
   document.addEventListener("DOMContentLoaded", function(){
     evShowSuggestions(false);
@@ -1075,8 +1155,6 @@ evBotReply(
 })();
 </script>
 <!-- ELLVII_LEAD_GATE_OVERRIDE_END -->
-
-
 
 <!-- ELLVII_DAILY_CTA_START -->
 <style>
