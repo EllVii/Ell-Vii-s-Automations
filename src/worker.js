@@ -155,16 +155,21 @@ async function handleChatStart(request, env) {
   }
 
   const firstName = cleanFirstName(body.firstName);
-  const contact = String(body.contact || "").trim();
-  const contactType = body.contactType || detectContactType(contact);
+  const rawContact = String(body.contact || "").trim();
+  const contactType = detectContactType(rawContact);
   const sourcePage = String(body.sourcePage || "").trim();
   const userAgent = request.headers.get("User-Agent") || "";
+
+  const contact =
+    contactType === "phone"
+      ? rawContact.replace(/\D/g, "")
+      : rawContact.toLowerCase();
 
   if (!firstName || firstName.length < 2) {
     return jsonResponse({ success: false, error: "First name is required." }, 400);
   }
 
-  if (!isValidEmail(contact) && !isValidPhone(contact)) {
+  if (!isValidEmail(rawContact) && !isValidPhone(rawContact)) {
     return jsonResponse(
       { success: false, error: "Valid email or phone number is required." },
       400
@@ -182,17 +187,23 @@ async function handleChatStart(request, env) {
     .bind(id, firstName, contact, contactType, sourcePage, userAgent, timestamp, timestamp)
     .run();
 
-  await env.CHAT_DB.prepare(
-    `INSERT INTO messages (conversation_id, role, message, created_at)
-     VALUES (?, ?, ?, ?)`
-  )
-    .bind(
-      id,
-      "system",
-      `Lead captured: ${firstName} | ${contactType}: ${contact}`,
-      timestamp
+  // Important: do not let message logging block lead capture.
+  // If this part fails, the lead is already saved and the visitor should still continue.
+  try {
+    await env.CHAT_DB.prepare(
+      `INSERT INTO messages (conversation_id, role, message, created_at)
+       VALUES (?, ?, ?, ?)`
     )
-    .run();
+      .bind(
+        id,
+        "system",
+        `Lead captured: ${firstName} | ${contactType}: ${contact}`,
+        timestamp
+      )
+      .run();
+  } catch (error) {
+    console.warn("Lead saved, but system message logging failed:", error);
+  }
 
   return jsonResponse({
     success: true,
